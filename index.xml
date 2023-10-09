@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>&amp;&gt; /dev/tux</title>
+    <link>https://tux.github.io/</link>
+    <description>Recent content on &amp;&gt; /dev/tux</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 25 Aug 2022 21:30:04 +0800</lastBuildDate><atom:link href="https://tux.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>No-bullshit VPN on Raspberry PI</title>
+      <link>https://tux.github.io/en/raspi-vpn/</link>
+      <pubDate>Mon, 02 Oct 2023 19:12:58 +0200</pubDate>
+      
+      <guid>https://tux.github.io/en/raspi-vpn/</guid>
+      <description>Disclaimer: All content on this blog is intended for educational purposes only. Only you is liable for any consequences resulting from your use of this information. You should always respect laws of your country.
+Intro VPNs are primarily designed to create a secure and encrypted connection between your device and a remote server. This connection can be used to protect online privacy, hide your IP address, access geo-restricted content, and enhance security when connecting to the internet, especially on public Wi-Fi networks.</description>
+    </item>
+    
+  </channel>
+</rss>
