@@ -23,7 +23,7 @@ Intro VPNs are primarily designed to create a secure and encrypted connection be
 <body a="auto">
         <main class="page-content" aria-label="Content">
             <div class="w">
-<a href="/">..</a>
+<a href="/">&lt;--</a>
 
 
 <article>
@@ -52,22 +52,24 @@ Intro VPNs are primarily designed to create a secure and encrypted connection be
 <p>Let&rsquo;s start from the hardware part - <strong>Raspberry PI</strong> looks like a good option, since it&rsquo;s a powerful mini-computer with all needed interfaces.<br>
 The best option to buy it in terms of money - order in China, it&rsquo;s used 4B with 8Gb of RAM as an example, but you can choose simpler model without Ethernet/USB-A and with 2 Gb RAM - it should serve the needs of a couple users just fine.<br>
 I suggest to buy a complete set with the housing and a power unit, like <a href="https://www.aliexpress.com/item/1005004388968309.html?spm=a2g0o.order_list.order_list_main.41.4ace1802HcxGeZ">this one</a>.</p>
+<p style="display: flex; justify-content: space-between;"> 
+  <img src="/en/raspi-vpn-static/raspi-1.jpg" width=350px />
+</p>  
 <h3 id="assembling">Assembling</h3>
 <p>Assembling is usually super-easy:</p>
 <ul>
 <li>place heat sinks from the set on CPU, RAM and network controller</li>
 <li>mount a fan on the top side of housing &ndash;&gt; connect it to either 3V or 5V on-board power via GPIO, here is a pinout:</li>
 </ul>
-<img src="/en/Raspberry-Pi-GPIO-Header-with-Photo.png" width=400px />
-<p>Here is how it looks like after assembling:</p>
+<img src="/en/raspi-vpn-static/Raspberry-Pi-GPIO-Header-with-Photo.png" width=400px />
+<p>Here is how it looks like assembled:</p>
 <p style="display: flex; justify-content: space-between;"> 
-  <img src="/en/raspi-inside-1.jpg" width=300px />
-  <img src="/en/raspi-1.jpg" width=420px />
+  <img src="/en/raspi-vpn-static/raspi-inside-1.jpg" width=350px />
 </p>  
 <h3 id="raspi-configuration">Raspi configuration</h3>
 <p>Installing OS:</p>
 <ul>
-<li>use <a href="https://www.raspberrypi.com/software/">Raspberry PI Imager</a> and install latest available stable release of Ubuntu Server (<code>Ubuntu server LTS 20.04</code>) &ndash;&gt; write the OS image on the micro-sd flash drive</li>
+<li>use <a href="https://www.raspberrypi.com/software/">Raspberry PI Imager</a> and install latest available stable release of Ubuntu Server (<code style="background-color: #808080;">Ubuntu server LTS 20.04</code>) &ndash;&gt; write the OS image on the micro-sd flash drive</li>
 <li>don&rsquo;t forget to specify your wi-fi and ssh password during the configuration</li>
 <li>mount the SD card into the Raspi and turn on power, then wait a couple of minutes - computer should be ready then</li>
 </ul>
@@ -75,54 +77,54 @@ I suggest to buy a complete set with the housing and a power unit, like <a href=
 <ul>
 <li>get the Raspi IP by scanning your local network:
 <ul>
-<li>install <code>nmap</code> if you don&rsquo;t have it</li>
-<li>run: <code>sudo nmap -sn --script banner 192.168.X.X/24</code></li>
+<li>install <code style="background-color: #808080;">nmap</code> if you don&rsquo;t have it</li>
+<li>run: <code style="background-color: #808080;">sudo nmap -sn &ndash;script banner 192.168.X.X/24</code></li>
 <li>the output will show MAC Address of found devices with vendor name. You&rsquo;re searching for anything related to Raspberry PI. In case you have a lot of Unknown vendors - you can just try to find vendor by MAC address using some service, like <a href="https://macvendors.com/">https://macvendors.com/</a></li>
 </ul>
 </li>
-<li>from the local network, just use <code>ssh pi@&lt;IP_ADDRESS&gt;</code> and then type previously specified password</li>
+<li>from the local network, just use <code style="background-color: #808080;">ssh pi@&lt;IP_ADDRESS&gt;</code> and then type previously specified password</li>
 <li>move to the public key authentication instead of a password for ssh access:
 <ul>
-<li>generate password-protected ssh keys pair, if you don&rsquo;t have it yet: <code>ssh-keygen -o -a 64 -t ed25519 -f ~/.ssh/id_ed25519</code></li>
-<li>log in to PI and add generated <code>~/.ssh/id_ed25519.pub</code> to the <code>~/.ssh/authorized_keys</code></li>
+<li>generate password-protected ssh keys pair, if you don&rsquo;t have it yet: <code style="background-color: #808080;">ssh-keygen -o -a 64 -t ed25519 -f ~/.ssh/id_ed255194</code></li>
+<li>log in to PI and add generated <code style="background-color: #808080;">~/.ssh/id_ed25519.pub</code> to the <code style="background-color: #808080;">~/.ssh/authorized_keys</code></li>
 <li>Turn off access by password:
 <ul>
-<li>go to <code>/etc/ssh/sshd_config</code> file and change the <code>PasswordAuthentication</code> to <code>no</code></li>
-<li>reload ssh service: <code>sudo systemctl restart ssh</code></li>
+<li>go to <code style="background-color: #808080;">/etc/ssh/sshd_config</code> file and change the <code style="background-color: #808080;">PasswordAuthentication</code> to <code style="background-color: #808080;">no</code></li>
+<li>reload ssh service: <code style="background-color: #808080;">sudo systemctl restart ssh</code></li>
 </ul>
 </li>
 </ul>
 </li>
 <li>configure public access:
 <ul>
-<li>go to your router&rsquo;s admin panel (usually sits on <code>192.168.0.1/192.168.0.0</code> or check your router box)</li>
+<li>go to your router&rsquo;s admin panel (usually sits on <code style="background-color: #808080;">192.168.0.1/192.168.0.0</code> or check your router box)</li>
 <li>create port forwarding rule for 22 port (used by default for ssh)</li>
 <li>apply new port forwarding rule</li>
 <li>make sure that you have static IP at the place you want to mount Raspi</li>
 <li>get your routers&rsquo; public IP by using some website, like <a href="https://www.whatsmyip.org/">https://www.whatsmyip.org/</a> - you can use either IP address itself, or DNS, if it exists</li>
 <li>connect to mobile network to test connectivity</li>
-<li>connect to PI: <code>ssh ip@&lt;PUBLIC_IP or DNS&gt;</code></li>
+<li>connect to PI: <code style="background-color: #808080;">ssh ip@&lt;PUBLIC_IP or DNS&gt;</code></li>
 </ul>
 </li>
 <li>configure firewall on Raspi:
 <ul>
-<li>allow 22 port for ssh access <code>sudo ufw allow 22/tcp</code></li>
-<li>then enable <code>ufw</code> if it wasn&rsquo;t and reboot the devide: <code>sudo reboot -h now</code></li>
-<li>connect and check the status: <code>sudo ufw status</code></li>
+<li>allow 22 port for ssh access <code style="background-color: #808080;">sudo ufw allow 22/tcp</code></li>
+<li>then enable <code style="background-color: #808080;">ufw</code> if it wasn&rsquo;t and reboot the device:<code style="background-color: #808080;">sudo reboot -h now</code></li>
+<li>connect and check the status:<code style="background-color: #808080;">sudo ufw status</code></li>
 </ul>
 </li>
 <li>configure &ldquo;health monitor&rdquo; shell session:
 <ul>
 <li>run <a href="https://github.com/tmux/tmux/wiki">tmux</a> session and create 4 windows there to run different apps in each</li>
-<li>run <code>htop</code> for resources consumption monitoring</li>
-<li>run <a href="https://elinux.org/RPI_vcgencmd_usage">vcgencmd</a> <code>watch -c -b -d  -n 1 -- 'vcgencmd measure_temp'</code> to control the temperature</li>
-<li>install <a href="https://github.com/raboof/nethogs">nethogs</a> and run it <code>sudo nethogs</code></li>
+<li>run <code style="background-color: #808080;">htop</code> for resources consumption monitoring</li>
+<li>run <a href="https://elinux.org/RPI_vcgencmd_usage">vcgencmd</a> <code style="background-color: #808080;">watch -c -b -d  -n 1 &ndash; &lsquo;vcgencmd measure_temp&rsquo;</code> to control the temperature</li>
+<li>install <a href="https://github.com/raboof/nethogs">nethogs</a> and run it <code style="background-color: #808080;">sudo nethogs</code></li>
 <li>your screen in the end will look smth like this:</li>
 </ul>
 </li>
 </ul>
 <p style="display: flex; justify-content: space-between;"> 
-  <img src="/en/tmux.png" width=1024px />  
+  <img src="/en/raspi-vpn-static/tmux.png" width=1024px />  
 </p>
 <h2 id="vpn">VPN</h2>
 <p>The problem is that nowadays it&rsquo;s pretty easy to sniff the traffic with <a href="https://en.wikipedia.org/wiki/Deep_packet_inspection">dpi</a> technologies, detect packets of the popular VPN protocols and block them.<br>
@@ -135,48 +137,48 @@ The main con is that it&rsquo;s super easy to configure and use out of the box.<
 <p>Setting up:</p>
 <ul>
 <li>install docker: <a href="https://docs.docker.com/engine/install/ubuntu/">https://docs.docker.com/engine/install/ubuntu/</a></li>
-<li>now, we need to use <code>arm</code>-based outline server image, I&rsquo;ve used slightly outdated one, which could be found by <a href="https://github.com/kugaevsky/outline-server-arm64">this link</a>. It just uses several binaries that compiled for the <code>arm</code> platform and appropriate node docker image. You just need to execute install shell script in order to run the server</li>
-<li>allow outline-specific ports in <code>ufw</code>: <code>14393</code> - both tcp and udp, <code>60866</code> - tcp</li>
-<li>configure port forwarding on the router, like you did previously for ssh: <code>14393</code> - both tcp and udp, <code>60866</code> - tcp</li>
+<li>now, we need to use <code style="background-color: #808080;">arm</code>-based outline server image, I&rsquo;ve used slightly outdated one, which could be found by <a href="https://github.com/kugaevsky/outline-server-arm64">this link</a>. It just uses several binaries that compiled for the <code style="background-color: #808080;">arm</code> platform and appropriate node docker image. You just need to execute install shell script in order to run the server</li>
+<li>allow outline-specific ports in <code style="background-color: #808080;">ufw</code>: <code style="background-color: #808080;">14393</code> - both tcp and udp, <code style="background-color: #808080;">60866</code> - tcp</li>
+<li>configure port forwarding on the router, like you did previously for ssh: <code style="background-color: #808080;">14393</code> - both tcp and udp, <code style="background-color: #808080;">60866</code> - tcp</li>
 <li>go to your <em>desktop machine</em> and run the Outline manager to generate access keys:
 <ul>
 <li>clone <a href="https://github.com/kugaevsky/outline-server-arm64">the repo</a> that you used to run outline server</li>
 <li>install node if you don&rsquo;t have it, presumably via <a href="https://github.com/nvm-sh/nvm#installing-and-updating">nvm</a></li>
-<li><code>npm install</code> in the root of the repo</li>
-<li><code>npm run action server_manager/electron_app/start ${PLATFORM}</code> where <code>PLATFORM</code> is <code>linux</code>/<code>macos</code>/<code>windows</code></li>
+<li><code style="background-color: #808080;">npm install</code> in the root of the repo</li>
+<li><code style="background-color: #808080;">npm run action server_manager/electron_app/start ${PLATFORM}</code> where <code style="background-color: #808080;">PLATFORM</code> is <code style="background-color: #808080;">linux/macos/windows</code></li>
 <li>generate keys through the UI and share with others! Depending on platform you just need to install the outline client and you&rsquo;re ready to go (<a href="https://github.com/Jigsaw-Code/outline-client/tree/master/src/cordova/apple">mac/ios</a>, <a href="https://github.com/Jigsaw-Code/outline-client/tree/master/src/cordova/android">android</a>, <a href="https://github.com/Jigsaw-Code/outline-client/tree/master/src/electron">win/linux</a>)</li>
 </ul>
 </li>
 </ul>
 <p style="display: flex; justify-content: space-between;"> 
-  <img src="/en/outline-manager.png" width=400px />  
+  <img src="/en/raspi-vpn-static/outline-manager.png" width=400px />  
 </p>
-<h3 id="v2ray-flexible-lower-level-less-user-friendly-dont-use-if-outline-is-enough">V2Ray (flexible, lower-level, less user-friendly, don&rsquo;t use if <code>Outline</code> is enough)</h3>
+<h3 id="v2ray-flexible-lower-level-less-user-friendly-dont-use-if-code-stylebackground-color-808080outlinecode-is-enough">V2Ray (flexible, lower-level, less user-friendly, don&rsquo;t use if <code style="background-color: #808080;">Outline</code> is enough)</h3>
 <p><a href="https://www.v2ray.com/en/index.html">V2Ray</a> is an open-source proxy software project that was developed primarily to improve upon the shortcomings of other proxy protocols and provide advanced features for secure and efficient internet communication. So it rather should be compared with Shadowsocks protocol itself and called it&rsquo;s successor (after the original Shadowsocks was removed from the internet by the call from China), rather than higher-level vpn/proxy solutions like Outline.<br>
-It is highly configurable (which is not always good, lol) and uses no external dependencies - just pure <code>go</code>, which simplifies configuration of the environment (static binary and we&rsquo;re ready to go). Also, one of the disadvantages is that the default protocol <a href="https://www.v2fly.org/en_US/developer/protocols/vmess.html">vmess</a> by default is a TCP-based stream protocol, which for UDP means &ndash;&gt; &ldquo;UDP over TCP&rdquo;.<br>
-Let&rsquo;s configure <code>vmess</code>:</p>
+It is highly configurable (which is not always good, lol) and uses low to none of external dependencies - just pure <code style="background-color: #808080;">go</code>, which simplifies configuration of the environment (static binary and we&rsquo;re ready to go). Also, one of the disadvantages is that the default protocol <a href="https://www.v2fly.org/en_US/developer/protocols/vmess.html">vmess</a> by default is a TCP-based stream protocol, which for UDP means &ndash;&gt; &ldquo;UDP over TCP&rdquo;.<br>
+Let&rsquo;s configure <code style="background-color: #808080;">vmess</code>:</p>
 <ul>
 <li>use the following <a href="https://www.v2fly.org/en_US/developer/protocols/vmess.html">utility script</a> to install the server:
 <ul>
-<li><code>curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh | sudo bash</code></li>
-<li><code>curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-dat-release.sh | sudo bash</code></li>
+<li><code style="background-color: #808080;">curl -L <a href="https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh">https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh</a> | sudo bash</code></li>
+<li><code style="background-color: #808080;">curl -L <a href="https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-dat-release.sh">https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-dat-release.sh</a> | sudo bash</code></li>
 </ul>
 </li>
-<li>enable and start v2ray service <code>sudo systemctl enable v2ray; sudo systemctl start v2ray</code></li>
-<li>check if all good <code>sudo systemctl status v2ray</code></li>
+<li>enable and start v2ray service <code style="background-color: #808080;">sudo systemctl enable v2ray; sudo systemctl start v2ray</code></li>
+<li>check if all good <code style="background-color: #808080;">sudo systemctl status v2ray</code></li>
 <li>for the proxy configuration (both client and server), I suggest to use <a href="https://www.v2fly.org/en_US/developer/protocols/vmess.html">the following tutorial</a>:
 <ul>
-<li>edit the server config: <code>sudo vi /usr/local/etc/v2ray/config.json</code>:
+<li>edit the server config: <code style="background-color: #808080;">sudo vi /usr/local/etc/v2ray/config.json</code>:
 <ul>
-<li>generate the regular uuid, which is used as a &ldquo;password&rdquo;, in the following form <code>a82d8737-18b8-4f91-81ca-7d69b8f74003</code></li>
+<li>generate the regular uuid, which is used as a &ldquo;password&rdquo;, in the following form <code style="background-color: #808080;">a82d8737-18b8-4f91-81ca-7d69b8f74003</code></li>
 </ul>
 </li>
-<li>restart v2ray <code>sudo systemctl restart v2ray</code></li>
+<li>restart v2ray <code style="background-color: #808080;">sudo systemctl restart v2ray</code></li>
 </ul>
 </li>
-<li>allow v2ray port from the config in firewall: <code>sudo ufw allow 10086</code> and check status <code>sudo ufw status</code></li>
-<li>configure port forwarding on your router for port <code>10086</code> (tcp)</li>
-<li>watch for <code>v2ray</code> logs: <code>sudo tail -f /var/log/v2ray/error.log</code></li>
+<li>allow v2ray port from the config in firewall: <code style="background-color: #808080;">sudo ufw allow 10086</code> and check status <code style="background-color: #808080;">sudo ufw status</code></li>
+<li>configure port forwarding on your router for port <code style="background-color: #808080;">10086</code> (tcp)</li>
+<li>watch for <code style="background-color: #808080;">v2ray</code> logs: <code style="background-color: #808080;">sudo tail -f /var/log/v2ray/error.log</code></li>
 <li>download client (<a href="https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.v2ray.ang&amp;hl=en&amp;gl=US">android</a>) and copy there earlier created client config</li>
 </ul>
 <hr>
