@@ -18,6 +18,18 @@ Intro VPNs are primarily designed to create a secure and encrypted connection be
     </item>
     
     <item>
+      <title>cProfile 4 life</title>
+      <link>https://gasparian.github.io/en/python-profiling/</link>
+      <pubDate>Wed, 03 May 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://gasparian.github.io/en/python-profiling/</guid>
+      <description>There are quite some profiling tools for Python, like popular scalene. But I like python for simplicity and really like to use some &amp;ldquo;default&amp;rdquo; tools from the standard python toolchain - so cProfile is my choice.
+It doesn&amp;rsquo;t require fine-grained code annotation and very simple to use.
+It shows stats on how much time is spent while executing certain functions. Really easy to work and interpret.
+Run For example, the following command will run profiling on each function that is being run inside the main.</description>
+    </item>
+    
+    <item>
       <title>OpenCV CUDA on 🛞`s</title>
       <link>https://gasparian.github.io/en/opencv-cuda/</link>
       <pubDate>Fri, 27 Jan 2023 00:00:00 +0000</pubDate>
