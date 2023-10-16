@@ -6,16 +6,7 @@
     <description>Recent content in Ens on &amp;&gt; /dev/tux</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 16 Oct 2023 11:47:53 +0200</lastBuildDate><atom:link href="https://gasparian.github.io/en/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>OpenCV CUDA on 🛞`s</title>
-      <link>https://gasparian.github.io/en/opencv-cuda/</link>
-      <pubDate>Mon, 16 Oct 2023 11:47:53 +0200</pubDate>
-      
-      <guid>https://gasparian.github.io/en/opencv-cuda/</guid>
-      <description>I think we all know opencv - it’s a pretty old yet widely used and performant computer vision library with a lot of useful algorithms. One of the advantages of it - you can configure opencv how you want to get really nice performance gain. One of the ways - compile it to multiply matrices on GPUs to speed up both &amp;ldquo;old&amp;rdquo; CV filters (which are essentially convolutions) and use deep learning inference (yes, you can do it in opencv with the special module added).</description>
-    </item>
-    
+    <lastBuildDate>Mon, 02 Oct 2023 19:12:58 +0200</lastBuildDate><atom:link href="https://gasparian.github.io/en/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>No-bullshit VPN on Raspberry PI</title>
       <link>https://gasparian.github.io/en/raspi-vpn/</link>
@@ -24,6 +15,15 @@
       <guid>https://gasparian.github.io/en/raspi-vpn/</guid>
       <description>Disclaimer: All content on this blog is intended for educational purposes only. Only you is liable for any consequences resulting from your use of this information. You should always respect laws of your country.
 Intro VPNs are primarily designed to create a secure and encrypted connection between your device and a remote server. This connection can be used to protect online privacy, hide your IP address, access geo-restricted content, and enhance security when connecting to the internet, especially on public Wi-Fi networks.</description>
+    </item>
+    
+    <item>
+      <title>OpenCV CUDA on 🛞`s</title>
+      <link>https://gasparian.github.io/en/opencv-cuda/</link>
+      <pubDate>Fri, 27 Jan 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://gasparian.github.io/en/opencv-cuda/</guid>
+      <description>I think we all know opencv - it’s a pretty old yet widely used and performant computer vision library with a lot of useful algorithms. One of the advantages of it - you can configure opencv how you want to get really nice performance gain. One of the ways - compile it to multiply matrices on GPUs to speed up both &amp;ldquo;old&amp;rdquo; CV filters (which are essentially convolutions) and use deep learning inference (yes, you can do it in opencv with the special module added).</description>
     </item>
     
   </channel>
