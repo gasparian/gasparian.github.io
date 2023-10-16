@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en-us"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <meta name="description" content="In tensorflow 1.0, you had to define your model as a graph, and run it using the following syntax:
+with tf.Session(...) as sess: sess.run(...) This piece of code basically compiles a graph and puts it on the device that it should be executed on (CPU/GPU).
+While compiling the graph, TensorFlow applies various optimizations, like running parallel branches in separate threads, etc. So, as a result, you could expect a better performance of the resulting model.">  
+
+  <title>
+    
+      Tensorflow v1 vs v2 inference
+    
+  </title>
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/" />
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.805853392833461a175679cfa9ebb7a56e1a094874d51433f3504a38333b3e01fd0f4ae14e02a14d4efbced1b6872b03478a9b34a3427abc9d29d73b2b0ca514.css" integrity="sha512-gFhTOSgzRhoXVnnPqeu3pW4aCUh01RQz81BKODM7PgH9D0rhTgKhTU77ztG2hysDR4qbNKNCerydKdc7KwylFA==" />
+  
+</head>
+<body a="auto">
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">&lt;--</a>
+
+
+<article>
+    <p class="post-meta">
+        <time datetime="2022-07-04 00:00:00 &#43;0000 UTC">
+            2022-07-04
+        </time>
+    </p>
+
+    <h1>Tensorflow v1 vs v2 inference</h1>
+
+    
+
+    <p>In tensorflow 1.0, you had to define your model as a graph, and run it using the following syntax:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">with</span> tf<span style="color:#f92672">.</span>Session(<span style="color:#f92672">...</span>) <span style="color:#66d9ef">as</span> sess:
+</span></span><span style="display:flex;"><span>  sess<span style="color:#f92672">.</span>run(<span style="color:#f92672">...</span>)
+</span></span></code></pre></div><p>This piece of code basically compiles a graph and puts it on the device that it should be executed on (CPU/GPU).</p>
+<p>While compiling the graph, TensorFlow applies various optimizations, like running parallel branches in separate threads, etc. So, as a result, you could expect a better performance of the resulting model. Moreover, such a graph could be saved and run on different platforms without depending on Python at all.</p>
+<p>But starting from TensorFlow 2.0, the new eager mode has been introduced (just like in PyTorch). This implies an execution environment that evaluates operations immediately, just like the python interpreter behaves with the python code. And such execution mode could be used, first of all, for development purposes, since we can debug our code easier. For example, the following piece of code should print out &ldquo;4&rdquo;, by evaluating the <code style="background-color: #808080;">tf.matmul</code> operation immediately:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>x <span style="color:#f92672">=</span> [[<span style="color:#ae81ff">2.</span>]]
+</span></span><span style="display:flex;"><span>m <span style="color:#f92672">=</span> tf<span style="color:#f92672">.</span>matmul(x, x)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Result: </span><span style="color:#e6db74">{</span>x<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><p>The main disadvantage of such an approach, compared to the “graph” mode - performance.</p>
+<p>Here is the inference time comparison for the <code style="background-color: #808080;">mobilenetv2</code> classifier on Intel MacBook 2019 (CPU):</p>
+<p style="display: flex; justify-content: space-between;"> 
+  <img src="/en/tf1-vs-tf2-static/inference-time.png" width=500px/>
+</p>  
+<p>As you can see, the relative difference could be huge - up to ~3-4 times. Also, inference time distribution for the eager mode is spread.</p>
+<p>So, you can still develop your model in eager (default) mode in tf 2.0, but you need to enable graph execution when using the training pipeline for inference. Here are some tips on how to switch between eager and graph modes in tf &gt;=2.0:</p>
+<ul>
+<li>call <code style="background-color: #808080;">tf.compat.v1.disable_eager_execution()</code> or <code style="background-color: #808080;">tf.compat.v1.enable_eager_execution()</code> before the graph loading / initialization (useful when you load models not trained by you):</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Predictor</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> __init__(self, path: str) <span style="color:#f92672">-&gt;</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>        tf<span style="color:#f92672">.</span>compat<span style="color:#f92672">.</span>v1<span style="color:#f92672">.</span>disable_eager_execution()
+</span></span><span style="display:flex;"><span>        self<span style="color:#f92672">.</span>model <span style="color:#f92672">=</span> load_model(path)
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">...</span>
+</span></span></code></pre></div><ul>
+<li>or use the &ldquo;new&rdquo; <a href="https://www.tensorflow.org/api_docs/python/tf/function">tf.function</a> to wrap up your model after it&rsquo;s definition, which will trace-compile it to a Tensorflow graph:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> tensorflow.keras <span style="color:#f92672">import</span> Input, Model
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> tensorflow.keras.layers <span style="color:#f92672">import</span> Flatten, Dense
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>inputs <span style="color:#f92672">=</span> Input(shape<span style="color:#f92672">=</span>(<span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>)) 
+</span></span><span style="display:flex;"><span>x <span style="color:#f92672">=</span> Flatten()(inputs) 
+</span></span><span style="display:flex;"><span>x <span style="color:#f92672">=</span> Dense(<span style="color:#ae81ff">256</span>, <span style="color:#e6db74">&#34;relu&#34;</span>)(x)
+</span></span><span style="display:flex;"><span>x <span style="color:#f92672">=</span> Dense(<span style="color:#ae81ff">256</span>, <span style="color:#e6db74">&#34;relu&#34;</span>)(x) 
+</span></span><span style="display:flex;"><span>x <span style="color:#f92672">=</span> Dense(<span style="color:#ae81ff">256</span>, <span style="color:#e6db74">&#34;relu&#34;</span>)(x) 
+</span></span><span style="display:flex;"><span>outputs <span style="color:#f92672">=</span> Dense(<span style="color:#ae81ff">10</span>, <span style="color:#e6db74">&#34;softmax&#34;</span>)(x) 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>model <span style="color:#f92672">=</span> Model(inputs<span style="color:#f92672">=</span>inputs, outputs<span style="color:#f92672">=</span>outputs)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>input_data <span style="color:#f92672">=</span> tf<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>uniform([<span style="color:#ae81ff">100</span>, <span style="color:#ae81ff">28</span>, <span style="color:#ae81ff">28</span>])
+</span></span><span style="display:flex;"><span>graph_model <span style="color:#f92672">=</span> tf<span style="color:#f92672">.</span>function(model)
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Results: </span><span style="color:#e6db74">{</span>graph_model(input_data)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
+</span></span></code></pre></div><hr>
+<p>Reference:</p>
+<ul>
+<li><a href="https://www.tensorflow.org/guide/migrate/tf1_vs_tf2">https://www.tensorflow.org/guide/migrate/tf1_vs_tf2</a></li>
+</ul>
+
+</article>
+
+            </div>
+        </main>
+    </body>
+</html>

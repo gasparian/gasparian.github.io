@@ -38,5 +38,16 @@ Run For example, the following command will run profiling on each function that 
       <description>I think we all know opencv - it’s a pretty old yet widely used and performant computer vision library with a lot of useful algorithms. One of the advantages of it - you can configure opencv how you want to get really nice performance gain. One of the ways - compile it to multiply matrices on GPUs to speed up both &amp;ldquo;old&amp;rdquo; CV filters (which are essentially convolutions) and use deep learning inference (yes, you can do it in opencv with the special module added).</description>
     </item>
     
+    <item>
+      <title>Tensorflow v1 vs v2 inference</title>
+      <link>https://gasparian.github.io/en/tf1-vs-tf2/</link>
+      <pubDate>Mon, 04 Jul 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://gasparian.github.io/en/tf1-vs-tf2/</guid>
+      <description>In tensorflow 1.0, you had to define your model as a graph, and run it using the following syntax:
+with tf.Session(...) as sess: sess.run(...) This piece of code basically compiles a graph and puts it on the device that it should be executed on (CPU/GPU).
+While compiling the graph, TensorFlow applies various optimizations, like running parallel branches in separate threads, etc. So, as a result, you could expect a better performance of the resulting model.</description>
+    </item>
+    
   </channel>
 </rss>
