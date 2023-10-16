@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en-us"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <meta name="description" content="I think we all know opencv - it’s a pretty old yet widely used and performant computer vision library with a lot of useful algorithms. One of the advantages of it - you can configure opencv how you want to get really nice performance gain. One of the ways - compile it to multiply matrices on GPUs to speed up both &ldquo;old&rdquo; CV filters (which are essentially convolutions) and use deep learning inference (yes, you can do it in opencv with the special module added).">  
+
+  <title>
+    
+      OpenCV CUDA on 🛞`s
+    
+  </title>
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/" />
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.c5af9bae99b4a3d315b9f39305ffff27e9c3383fbbfd8b5fcaf2237667021a333a982fb958d1813a720b0a660b14022337553ae1ca93ef2ee17c4ae628ac19cb.css" integrity="sha512-xa&#43;brpm0o9MVufOTBf//J&#43;nDOD&#43;7/YtfyvIjdmcCGjM6mC&#43;5WNGBOnILCmYLFAIjN1U64cqT7y7hfErmKKwZyw==" />
+  
+</head>
+<body a="auto">
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">&lt;--</a>
+
+
+<article>
+    <p class="post-meta">
+        <time datetime="2023-10-16 11:47:53 &#43;0200 CEST">
+            2023-10-16
+        </time>
+    </p>
+
+    <h1>OpenCV CUDA on 🛞`s</h1>
+
+    
+
+    <p>I think we all know <a href="https://github.com/opencv/opencv">opencv</a> - it’s a pretty old yet widely used and performant computer vision library with a lot of useful algorithms. One of the advantages of it - you can configure opencv how you want to get really nice performance gain. One of the ways - compile it to multiply matrices on GPUs to speed up both &ldquo;old&rdquo; CV filters (which are essentially convolutions) and use deep learning inference (yes, you can do it in opencv with the special module added).</p>
+<h2 id="preparing-the-environment-with-gpus-and-cuda">Preparing the environment with GPUs and CUDA</h2>
+<p>Here I use machine with GPUs and Ubuntu as the base OS with CUDA drivers installed (don&rsquo;t want to place here instructions on how to install CUDA, but I suggest just to use &ldquo;official&rdquo; nvidia docker images).</p>
+<p>It&rsquo;s pretty common nowadays to use both for training and inference in prod. relatively cheap VMs with NVIDIA A10G GPUs. So to build our libs, I&rsquo;ve used <code style="background-color: #808080;">g5.xlarge</code> AWS EC2 instance with Ubuntu 20.04 as a base image, python 3.8 and CUDA 11.6 - you can use any similar setup.</p>
+<h2 id="why-wheel">Why Wheel</h2>
+<p>Python wheel is a standard of python package distribution (<a href="https://www.google.com/search?q=python+wheel&amp;rlz=1C5CHFA_enNL1010NL1010&amp;ei=fnnSY9P3M4vhkgXrurCQCQ&amp;ved=0ahUKEwjTrv-ypeX8AhWLsKQKHWsdDJIQ4dUDCA8&amp;uact=5&amp;oq=python+wheel&amp;gs_lcp=Cgxnd3Mtd2l6LXNlcnAQAzIECAAQQzIFCAAQgAQyBQgAEIAEMgUIABCABDIFCAAQgAQyBQgAEIAEMgUIABCABDIFCAAQgAQyBQgAEIAEMgUIABCABDoKCAAQRxDWBBCwAzoHCAAQsAMQQ0oECEEYAEoECEYYAFDgAljgAmDGBGgBcAF4AIABVIgBVJIBATGYAQCgAQHIAQrAAQE&amp;sclient=gws-wiz-serp">google&rsquo;s</a> definition). Essentially - it’s just a zip archive with all the files needed to install the package, like python code, *.pyc byte code and some compiled platform-specific native shared libraries (e.g. *.so).</p>
+<p>The core advantage that makes us care about wheels in the ML domain - no need to compile libs during installation since we have a wheel that already contain compiled extension modules. Since almost all of libraries that we use are essentially python bindings for some lower level code in C/C++/Fortran/<you name it> - it could become really hard to always keep the host OS ready to build such libs.<br>
+Ideally, lib&rsquo;s developer should put pre-built wheels for the specific platforms somewhere publicly, so everybody could just pip install them. But it&rsquo;s not the case for a lot of important libraries, unfortunately ;(</p>
+<p>It becomes especially important when we want to build libs with CUDA support.</p>
+<p>And, also, some libraries may be very slow to build on the CI workers inside the special containers, like <a href="https://catalog.ngc.nvidia.com/orgs/nvidia/containers/tritonserver">triton</a>. So, obviously, installing pre-built wheel just with pip install saves a lot of time.</p>
+<h2 id="compile">Compile</h2>
+<p>First, log-in to build machine and install OS dependencies:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>apt-get update -y <span style="color:#f92672">&amp;&amp;</span> apt-get upgrade -y
+</span></span><span style="display:flex;"><span>apt-get install -y <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        build-essential git cmake <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        unzip pkg-config wget <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        libavcodec-dev libavformat-dev libswscale-dev <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        libgtk-3-dev libpng-dev libjpeg-dev <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        libopenexr-dev libtiff-dev libwebp-dev <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        libv4l-dev libxvidcore-dev libx264-dev <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        libgtk-3-dev libatlas-base-dev gfortran
+</span></span></code></pre></div><p>Then, you need to pull the <a href="https://github.com/opencv/opencv-python#manual-builds">opencv-python repo</a> and follow the instructions for the manual build.</p>
+<p>During the build, you need to provide <code style="background-color: #808080;">cmake</code> flags, that suits your use cases. At this particular case, we want CUDA support and extra libs (<code style="background-color: #808080;">ENABLE_CONTRIB</code>) with neural networks support to be compiled. Here is the script:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cd opencv-python
+</span></span><span style="display:flex;"><span>rm -rf build <span style="color:#f92672">&amp;&amp;</span> mkdir -p build 
+</span></span><span style="display:flex;"><span>pip install numpy<span style="color:#f92672">==</span>1.23.4
+</span></span><span style="display:flex;"><span>export CMAKE_ARGS<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;-D CMAKE_BUILD_TYPE=RELEASE -D INSTALL_PYTHON_EXAMPLES=OFF -D INSTALL_C_EXAMPLES=OFF -D OPENCV_ENABLE_NONFREE=ON -D WITH_CUDA=ON -D WITH_CUDNN=ON -D OPENCV_DNN_CUDA=ON -D ENABLE_FAST_MATH=1 -D CUDA_FAST_MATH=1 -D CUDA_ARCH_BIN=8.6 -D WITH_CUBLAS=1 -D BUILD_EXAMPLES=OFF&#34;</span>
+</span></span><span style="display:flex;"><span>export ENABLE_CONTRIB<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>pip wheel . --verbose -w dist
+</span></span></code></pre></div><p>It could take from 30 mins to couple hours to compile. Be patient.</p>
+<p>If everything works - you’ll have a precious wheel archive in the dist:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>opencv_contrib_python-4.7.0.77db6ba-cp38-cp38-linux_x86_64.whl
+</span></span></code></pre></div><h2 id="install-and-add-runtime-dependencies">Install and add runtime dependencies</h2>
+<p>Now, you can just install built wheel with pip:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>pip install opencv_contrib_python-4.7.0.77db6ba-cp38-cp38-linux_x86_64.whl
+</span></span></code></pre></div><p>After that open Python interpreter and try to import <code style="background-color: #808080;">cv2</code>, most probably you’ll see errors related to some <code style="background-color: #808080;">*.so</code> could not be found:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#a6e22e">ImportError</span>: libhdf5_serial<span style="color:#f92672">.</span>so<span style="color:#ae81ff">.100</span>: cannot open shared object file: No such file <span style="color:#f92672">or</span> directory
+</span></span></code></pre></div><p>That’s because opencv relies on lots of shared libraries that should be installed on OS level and you don’t have them installed yet on your system.</p>
+<p>In order to debug that issue, you’ll need two tools: <code style="background-color: #808080;">ldd</code> and <code style="background-color: #808080;">apt-file</code>. <code style="background-color: #808080;">ldd</code> is usually presented on most of the Linux distributions and is used to print out all the shared object dependencies. And
+<code style="background-color: #808080;">apt-file</code> is the utility to find <code style="background-color: #808080;">apt</code> package by providing some string pattern to search for. You can install and update cache like that:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sudo apt install apt-file <span style="color:#f92672">&amp;&amp;</span> apt-file update
+</span></span></code></pre></div><p>So first you run <code style="background-color: #808080;">ldd</code> against opencv shared object, that should be located somewhere there:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>ldd /usr/local/lib/python3.X/dist-packages/cv2*.so
+</span></span></code></pre></div><p>The output of <code style="background-color: #808080;">ldd</code> could look like that:</p>
+<pre tabindex="0"><code>libpthread.so.0 =&gt; /usr/lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f60a55bf000)
+...
+libhdf5_serial.so.100 =&gt; not found
+</code></pre><p>So you’re interested in not found lines (to make it simple just <code style="background-color: #808080;">ldd</code>+<code style="background-color: #808080;">grep</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>ldd cv2*.so | grep <span style="color:#e6db74">&#34;not found&#34;</span>
+</span></span></code></pre></div><p>And then apt-file could be used to find the package those object files are belong to:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>apt-file search libhdf5_serial.so.100
+</span></span></code></pre></div><p>It will output the list of apt packages (there could be duplicates - that’s normal):</p>
+<pre tabindex="0"><code>libhdf5-100: /usr/lib/arm-linux-gnueabihf/libhdf5_serial.so.100
+libhdf5-100: /usr/lib/arm-linux-gnueabihf/libhdf5_serial.so.100.0.1
+</code></pre><p>So you just install that <code style="background-color: #808080;">libhdf5-100</code> with <code style="background-color: #808080;">apt install libhdf5-100</code> and it should be found next time you run <code style="background-color: #808080;">ldd</code>!</p>
+<p>Repeat that for all the not found dependencies and opencv will finally work!</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> <span style="color:#f92672">import</span> cv2
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> cv2<span style="color:#f92672">.</span>__version__
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#39;4.7.0&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> print(dir(cv2<span style="color:#f92672">.</span>cuda))
+</span></span><span style="display:flex;"><span>[<span style="color:#f92672">...</span> <span style="color:#e6db74">&#39;ORB&#39;</span>, <span style="color:#e6db74">&#39;ORB_create&#39;</span>, <span style="color:#e6db74">&#39;OpticalFlowDual_TVL1&#39;</span>, <span style="color:#e6db74">&#39;OpticalFlowDual_TVL1_create&#39;</span>, <span style="color:#e6db74">&#39;SHARED_ATOMICS&#39;</span>, <span style="color:#e6db74">&#39;SURF_CUDA&#39;</span>,<span style="color:#f92672">...</span>]
+</span></span></code></pre></div><p>After doing all that, you’ll end up with the list of OS dependencies that should be installed in the container alongside with the built wheel to use it in your apps - so just add it to your Dockerfile. Here is a real missing deps for the <code style="background-color: #808080;">tritonserver</code> container:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>RUN apt-get update -y <span style="color:#f92672">&amp;&amp;</span> apt-get install -y <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    libhdf5-103 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    libgtk-3-0 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    libdc1394-22 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    libgstreamer-plugins-base1.0-0 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    libavcodec58 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    libavformat58 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    libswscale5
+</span></span></code></pre></div><h2 id="test-inference">Test inference</h2>
+<p>Let&rsquo;s image that we downloaded tensorflow pre-trained <a href="https://github.com/Saafke/FSRCNN_Tensorflow/tree/master/models">FSRCNN</a> model and placed it to the same folder as the run-script:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> os
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> cv2
+</span></span><span style="display:flex;"><span><span style="color:#f92672">from</span> cv2 <span style="color:#f92672">import</span> dnn_superres 
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> numpy <span style="color:#66d9ef">as</span> np
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>base_path <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>dirname(os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>abspath(__file__))
+</span></span><span style="display:flex;"><span>model_id <span style="color:#f92672">=</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>join(base_path, <span style="color:#e6db74">&#34;FSRCNN_x2.pb&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>net <span style="color:#f92672">=</span> dnn_superres<span style="color:#f92672">.</span>DnnSuperResImpl_create()
+</span></span><span style="display:flex;"><span>net<span style="color:#f92672">.</span>readModel(model_id)
+</span></span><span style="display:flex;"><span>net<span style="color:#f92672">.</span>setPreferableBackend(cv2<span style="color:#f92672">.</span>dnn<span style="color:#f92672">.</span>DNN_BACKEND_CUDA)
+</span></span><span style="display:flex;"><span>net<span style="color:#f92672">.</span>setPreferableTarget(cv2<span style="color:#f92672">.</span>dnn<span style="color:#f92672">.</span>DNN_TARGET_CUDA)
+</span></span><span style="display:flex;"><span>net<span style="color:#f92672">.</span>setModel(<span style="color:#e6db74">&#34;fsrcnn&#34;</span>, <span style="color:#ae81ff">2</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>test_img <span style="color:#f92672">=</span> (np<span style="color:#f92672">.</span>random<span style="color:#f92672">.</span>random((<span style="color:#ae81ff">512</span>, <span style="color:#ae81ff">512</span>, <span style="color:#ae81ff">3</span>)) <span style="color:#f92672">*</span> <span style="color:#ae81ff">255</span>)<span style="color:#f92672">.</span>astype(np<span style="color:#f92672">.</span>uint8)
+</span></span><span style="display:flex;"><span>result <span style="color:#f92672">=</span> net<span style="color:#f92672">.</span>upsample(test_img)  
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>print(test_img<span style="color:#f92672">.</span>shape, result<span style="color:#f92672">.</span>shape)
+</span></span></code></pre></div><p>Excpected output:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">&gt;&gt;&gt;</span> 
+</span></span><span style="display:flex;"><span>(<span style="color:#ae81ff">512</span>, <span style="color:#ae81ff">512</span>, <span style="color:#ae81ff">3</span>) (<span style="color:#ae81ff">1024</span>, <span style="color:#ae81ff">1024</span>, <span style="color:#ae81ff">3</span>)
+</span></span></code></pre></div><p>Congrats, it works!</p>
+<hr>
+
+</article>
+
+            </div>
+        </main>
+    </body>
+</html>
