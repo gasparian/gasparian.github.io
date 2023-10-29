@@ -115,16 +115,29 @@ I suggest to buy a complete set with the housing and a power unit, like <a href=
 </li>
 <li>configure &ldquo;health monitor&rdquo; shell session:
 <ul>
-<li>run <a href="https://github.com/tmux/tmux/wiki">tmux</a> session and create 4 windows there to run different apps in each</li>
-<li>run <code style="background-color: #808080;">htop</code> for resources consumption monitoring</li>
-<li>run <a href="https://elinux.org/RPI_vcgencmd_usage">vcgencmd</a> <code style="background-color: #808080;">watch -c -b -d  -n 1 &ndash; &lsquo;vcgencmd measure_temp&rsquo;</code> to control the temperature</li>
-<li>install <a href="https://github.com/raboof/nethogs">nethogs</a> and run it <code style="background-color: #808080;">sudo nethogs</code></li>
-<li>your screen in the end will look smth like this:</li>
+<li>
+<p>run <a href="https://github.com/tmux/tmux/wiki">tmux</a> session and create 4 windows there to run different apps in each</p>
+</li>
+<li>
+<p>run <code style="background-color: #808080;">htop</code> for resources consumption monitoring</p>
+</li>
+<li>
+<p>run <a href="https://elinux.org/RPI_vcgencmd_usage">vcgencmd</a> <code style="background-color: #808080;">watch -c -b -d  -n 1 &ndash; &lsquo;vcgencmd measure_temp&rsquo;</code> to control the temperature</p>
+</li>
+<li>
+<p>install <a href="https://github.com/raboof/nethogs">nethogs</a> and run it <code style="background-color: #808080;">sudo nethogs</code></p>
+</li>
+<li>
+<p>follow the last <code style="background-color: #808080;">n</code> lines of the outline server in docker container: <code style="background-color: #808080;">docker logs -f -n=100 &lt;CONTAINER_ID&gt;</code></p>
+</li>
+<li>
+<p>your screen in the end will look smth like this:</p>
+</li>
 </ul>
 </li>
 </ul>
 <p style="display: flex; justify-content: space-between;"> 
-  <img src="/en/raspi-vpn-static/tmux.png" />  
+  <img src="/en/raspi-vpn-static/tmux-2.png" />  
 </p>
 <h2 id="vpn">VPN</h2>
 <p>The problem is that nowadays it&rsquo;s pretty easy to sniff the traffic with <a href="https://en.wikipedia.org/wiki/Deep_packet_inspection">dpi</a> technologies, detect packets of the popular VPN protocols and block them.<br>
