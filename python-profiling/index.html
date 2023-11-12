@@ -90,7 +90,7 @@ It shows stats on how much time is spent while executing certain functions. Real
 </span></span></code></pre></div><p>And finally, you can generate the graph, using profile file generate by <code style="background-color: #808080;">cProfile</code>:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>gprof2dot -f pstats main.prof | dot -Tpng -o output.png
 </span></span></code></pre></div><p>The example result looks like this:</p>
-<p style="display: block; margin-left: auto; margin-right: auto; max-width: 60%">
+<p style="display: block; margin-left: auto; margin-right: auto">
   <img src="/python-profiling-static/gprof2dot.png" />
 </p>  
 <p>Percentages on the picture represent <em>total</em> time spent in the function and all it&rsquo;s parents and <em>self</em> time spent in the function itself. See the short and clear explanation of how to interpret these boxes on the project’s <a href="https://github.com/jrfonseca/gprof2dot#output">github page</a>.</p>
