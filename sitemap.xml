@@ -2,29 +2,22 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://gasparian.github.io/categories/</loc>
+    <loc>https://gasparian.github.io/raspi-vpn/</loc>
     <lastmod>2023-10-02T19:12:58+02:00</lastmod>
   </url><url>
-    <loc>https://gasparian.github.io/categories/en/</loc>
-    <lastmod>2023-10-02T19:12:58+02:00</lastmod>
-  </url><url>
-    <loc>https://gasparian.github.io/en/</loc>
-    <lastmod>2023-10-02T19:12:58+02:00</lastmod>
-  </url><url>
-    <loc>https://gasparian.github.io/en/raspi-vpn/</loc>
-    <lastmod>2023-10-02T19:12:58+02:00</lastmod>
-  </url><url>
-    <loc>https://gasparian.github.io/en/python-profiling/</loc>
+    <loc>https://gasparian.github.io/python-profiling/</loc>
     <lastmod>2023-05-03T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://gasparian.github.io/en/opencv-cuda/</loc>
+    <loc>https://gasparian.github.io/opencv-cuda/</loc>
     <lastmod>2023-01-27T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://gasparian.github.io/</loc>
     <lastmod>2022-08-25T21:30:04+08:00</lastmod>
   </url><url>
-    <loc>https://gasparian.github.io/en/tf1-vs-tf2/</loc>
+    <loc>https://gasparian.github.io/tf1-vs-tf2/</loc>
     <lastmod>2022-07-04T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://gasparian.github.io/categories/</loc>
   </url><url>
     <loc>https://gasparian.github.io/tags/</loc>
   </url>
