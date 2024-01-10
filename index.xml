@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>&amp;&gt;</title>
+    <title>&amp;&gt; Yet Another Blog</title>
     <link>https://gasparian.github.io/</link>
-    <description>Recent content on &amp;&gt;</description>
+    <description>Recent content on &amp;&gt; Yet Another Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 25 Aug 2022 21:30:04 +0800</lastBuildDate><atom:link href="https://gasparian.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>No-bullshit VPN on Raspberry PI</title>
+      <title>Raspberry PI as a VPN server?</title>
       <link>https://gasparian.github.io/raspi-vpn/</link>
       <pubDate>Mon, 02 Oct 2023 19:12:58 +0200</pubDate>
       
@@ -18,7 +18,7 @@ Intro VPNs are primarily designed to create a secure and encrypted connection be
     </item>
     
     <item>
-      <title>cProfile 4 life</title>
+      <title>cProfile</title>
       <link>https://gasparian.github.io/python-profiling/</link>
       <pubDate>Wed, 03 May 2023 00:00:00 +0000</pubDate>
       
@@ -47,6 +47,15 @@ Run For example, the following command will run profiling on each function that 
       <description>In tensorflow 1.0, you had to define your model as a graph, and run it using the following syntax:
 with tf.Session(...) as sess: sess.run(...) This piece of code basically compiles a graph and puts it on the device that it should be executed on (CPU/GPU).
 While compiling the graph, TensorFlow applies various optimizations, like running parallel branches in separate threads, etc. So, as a result, you could expect a better performance of the resulting model.</description>
+    </item>
+    
+    <item>
+      <title>Harmless car hack</title>
+      <link>https://gasparian.github.io/car-hack/</link>
+      <pubDate>Tue, 14 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://gasparian.github.io/car-hack/</guid>
+      <description>Intro If you&amp;rsquo;re driving a car you&amp;rsquo;ve probably seen the On-Board Diagnostics port (OBD for short) under the steering wheel. That is a standardized interface for accessing the vehicle&amp;rsquo;s diagnostic information. It&amp;rsquo;s typically used by mechanics and diagnostic tools to retrieve data related to the engine, transmission, and other essential systems. They usually use some manufacturer-approved hardware. What makes it interesting is that we can read data from almost any major device in the vehicle and even control some of them.</description>
     </item>
     
   </channel>
