@@ -47,7 +47,16 @@ Btw, companies developing <a href="https://en.wikipedia.org/wiki/Advanced_driver
 Keep in mind, that for some real-time application it makes more sense to connect to the vehicle CAN bus directly, without using OBD port or any similar thing.</p>
 <h2 id="obd-communication-101">OBD communication 101</h2>
 <p><em>based on <a href="%5Bhere%5D(https://gist.github.com/gasparian/d8c24743e0e2527e2c1c3090a1bcf9df)">this cheat-sheet</a></em></p>
-<h3 id="using-elm327httpswwwelmelectronicscomobdichtmlelm327-devices">Using <a href="https://www.elmelectronics.com/obdic.html#ELM327">ELM327</a> devices</h3>
+<h3 id="check-the-device-connection-usb-wire-at-my-case">Check the device connection (USB wire at my case)</h3>
+<p>After connecting the device, you can check messages produced by the device driver in the kernel ring buffer:</p>
+<pre tabindex="0"><code>dmesg
+</code></pre><pre tabindex="0"><code>[ 8603.743057] CAN device driver interface
+[ 8603.748745] peak_usb 3-2:1.0: PEAK-System PCAN-USB adapter hwrev 28 serial
+    FFFFFFFF (1 channel)
+[ 8603.749554] peak_usb 3-2:1.0 can0: attached to PCAN-USB channel 0 (device
+    255)
+[ 8603.749664] usbcore: registered new interface driver peak_usb
+</code></pre><h3 id="using-elm327httpswwwelmelectronicscomobdichtmlelm327-devices">Using <a href="https://www.elmelectronics.com/obdic.html#ELM327">ELM327</a> devices</h3>
 <p>That&rsquo;s basically a microcontroller which converts signals from a vehicle&rsquo;s OBD-II port into the <a href="https://en.wikipedia.org/wiki/RS-232">RS232</a> serial interface and in the end provides the USB interface, which makes it easy to read/write signals with your regular PC.</p>
 <p style="display: block; margin-left: auto; margin-right: auto; max-width: 60%">
   <img src="/car-hack/elm-327-2.jpg" style="background-color: #ffffff" /> 
