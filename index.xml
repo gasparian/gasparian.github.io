@@ -8,6 +8,17 @@
     <language>en-us</language>
     <lastBuildDate>Thu, 25 Aug 2022 21:30:04 +0800</lastBuildDate><atom:link href="https://gasparian.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Distroless</title>
+      <link>https://gasparian.github.io/distroless/</link>
+      <pubDate>Sun, 24 Mar 2024 19:42:52 +0100</pubDate>
+      
+      <guid>https://gasparian.github.io/distroless/</guid>
+      <description>What ML development relies a lot on large computation frameworks like torch / tensorflow and wrappers on top of them and we became kind of locked on Python ecosystem. So we got used to deploy python to production.
+For the virtualization, we usually use containers.
+It all comes with the cost of bringing lots of dependencies to our application containers, which leads to huge image sizes and lots of security issues (literally thousands, if you don&amp;rsquo;t update python version/libs versions too often).</description>
+    </item>
+    
+    <item>
       <title>Raspberry PI as a VPN server?</title>
       <link>https://gasparian.github.io/raspi-vpn/</link>
       <pubDate>Mon, 02 Oct 2023 19:12:58 +0200</pubDate>
