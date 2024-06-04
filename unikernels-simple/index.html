@@ -4,7 +4,8 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
    <meta name="description" content="Purpose Unikernels are specialized, single-purpose operating systems designed to run directly on a hypervisor. They are compiled from high-level source code into a standalone kernel that includes only the necessary components to run a specific application.
-The main purpose of unikernels is to deploy applications in the cloud more efficiently and securely. By compiling only the required components into a single bootable image, unikernels offer significant reductions in image size, improved performance, and enhanced security compared to traditional operating systems.">  
+The main purpose of unikernels is to deploy applications in the cloud more efficiently and securely, compared to traditional operating systems.
+They are sealed and immutable at compile-time, reducing the attack surface and preventing unauthorized modifications.">  
 
   <title>
     
@@ -39,13 +40,13 @@ The main purpose of unikernels is to deploy applications in the cloud more effic
 
     <h2 id="purpose">Purpose</h2>
 <p>Unikernels are specialized, single-purpose operating systems designed to run directly on a <a href="https://en.wikipedia.org/wiki/Hypervisor">hypervisor</a>. They are compiled from high-level source code into a standalone kernel that includes only the necessary components to run a specific application.</p>
-<p>The main purpose of unikernels is to deploy applications <em>in the cloud</em> more efficiently and securely. By compiling only the required components into a single bootable image, unikernels offer significant reductions in image size, improved performance, and enhanced security compared to traditional operating systems.<br>
+<p>The main purpose of unikernels is to deploy applications <em>in the cloud</em> more efficiently and securely, compared to traditional operating systems.<br>
 They are sealed and immutable at compile-time, reducing the attack surface and preventing unauthorized modifications.<br>
 And due to their specialized nature, unikernels often exhibit better performance for their specific tasks, eliminating unnecessary general-purpose OS overhead (there is no such thing as &ldquo;syscall&rdquo; at all).<br>
 It doesn&rsquo;t have stuff that is not being used by application at runtime: like shell, mouse or floppy-disk driver (current Debian kernels still provide it, lol), etc.</p>
-<p>Also, need to remember, that unikernels <em>not intended</em> to be run directly on bare-metal: it relies on the hypervisor to provide essential services like device drivers and memory management through consistent interface regardless of underlying hardware, and it needs specific <a href="https://en.wikipedia.org/wiki/Bootloader">bootloaders</a> (either hypervisor&rsquo;s one or own minimal bootloader) which initializes VM environment, sets up address space and allocates memory pages to prepare unikernel to be executed.</p>
+<p>Also, need to remember, that unikernels <em>usually not intended</em> to be run directly on bare-metal: it relies on the hypervisor to provide essential services like device drivers and memory management through consistent interface regardless of underlying hardware, and it needs specific <a href="https://en.wikipedia.org/wiki/Bootloader">bootloaders</a> (either hypervisor&rsquo;s one or own minimal bootloader) which initializes VM environment, sets up address space and allocates memory pages to prepare unikernel to be executed.</p>
 <p>You may ask: if unikernels are so awesome, why not everybody using them?<br>
-Let&rsquo;s first look at the following visualization of difference between different virtualization approaches:</p>
+Let&rsquo;s first look at the following visualization of virtualization approaches:</p>
 <p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
   <img src="/unikernels/isolation-specialisation.png"/>
 </p>  
@@ -54,8 +55,9 @@ Let&rsquo;s first look at the following visualization of difference between diff
 <li>Traditional Virtual Machines (VMs): VMs run full operating systems and provide strong isolation between applications. They are more heavyweight than unikernels but support a wide range of applications and legacy software.</li>
 <li>Unikernels: Unikernels compile applications and their necessary libraries into a single bootable image that runs directly on a hypervisor. They offer minimal resource consumption, fast boot times, and enhanced security, tailored for specific, single-purpose applications.</li>
 </ul>
-<p>There always should be a trade-off based on business needs and engineering complexity. Even though unikernels can consume very little resources, so it may be the cheapest option to serve, the cost of rewriting and supporting your software to be build as unikernel can cost more money then you&rsquo;ll save on cloud expenses. So it&rsquo;s not a silver bullet. But if performance is your differentiator and your application is something like game-server or a simple backend API which high requirements to performance and security - it make sense to try unikernels.</p>
-<p>One of the benefits could be the fact that with unikernels, startup/reload time could be the order of magnitude of time to handle a request by you application - imagine 1-50ms total boot time! Examples could be on-the-fly updates in realtime apps, or running serverless apps.</p>
+<p>There always should be a trade-off based on business needs and engineering complexity. Even though unikernels can consume very little resources, so it may be the cheapest option to serve, I think, that the cost of rewriting, establishing new way of delivery and supporting your software to be build as unikernel can cost significant amount of money. So unikernel in not a silver bullet.<br>
+But if performance and/or security is a key differentiator for your product, like it&rsquo;s game-server or a simple but high-load backend API - it make sense to try unikernels.</p>
+<p>One of the benefits could be the fact that with unikernels, startup/reload time could be the same order of magnitude of time to handle a request by you application - imagine 1-50ms total boot time! Examples could be: on-the-fly updates in realtime apps or serverless apps lifecycle management.</p>
 <h2 id="how-it-works">How it works</h2>
 <p>Here is a nice picture showing software layers comparison, from one of the most well-known <a href="https://mort.io/publications/pdf/asplos13-unikernels.pdf">papers on unikernels</a>:</p>
 <p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
