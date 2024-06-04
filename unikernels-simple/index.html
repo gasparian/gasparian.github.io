@@ -4,8 +4,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
    <meta name="description" content="Purpose Unikernels are specialized, single-purpose operating systems designed to run directly on a hypervisor. They are compiled from high-level source code into a standalone kernel that includes only the necessary components to run a specific application.
-The main purpose of unikernels is to deploy applications in the cloud more efficiently and securely, compared to traditional operating systems.
-They are sealed and immutable at compile-time, reducing the attack surface and preventing unauthorized modifications.">  
+The main purpose of unikernels is to deploy applications more efficiently and securely, compared to traditional operating systems.
+They are sealed and immutable at compile-time, reducing the attack surface and preventing unauthorized modifications.
+And due to their specialized nature, unikernels often exhibit better performance for their specific tasks, eliminating unnecessary general-purpose OS overhead (there is no such thing as &ldquo;syscall&rdquo; at all).">  
 
   <title>
     
@@ -40,7 +41,7 @@ They are sealed and immutable at compile-time, reducing the attack surface and p
 
     <h2 id="purpose">Purpose</h2>
 <p>Unikernels are specialized, single-purpose operating systems designed to run directly on a <a href="https://en.wikipedia.org/wiki/Hypervisor">hypervisor</a>. They are compiled from high-level source code into a standalone kernel that includes only the necessary components to run a specific application.</p>
-<p>The main purpose of unikernels is to deploy applications <em>in the cloud</em> more efficiently and securely, compared to traditional operating systems.<br>
+<p>The main purpose of unikernels is to deploy applications more efficiently and securely, compared to traditional operating systems.<br>
 They are sealed and immutable at compile-time, reducing the attack surface and preventing unauthorized modifications.<br>
 And due to their specialized nature, unikernels often exhibit better performance for their specific tasks, eliminating unnecessary general-purpose OS overhead (there is no such thing as &ldquo;syscall&rdquo; at all).<br>
 It doesn&rsquo;t have stuff that is not being used by application at runtime: like shell, mouse or floppy-disk driver (current Debian kernels still provide it, lol), etc.</p>
@@ -58,6 +59,7 @@ Let&rsquo;s first look at the following visualization of virtualization approach
 <p>There always should be a trade-off based on business needs and engineering complexity. Even though unikernels can consume very little resources, so it may be the cheapest option to serve, I think, that the cost of rewriting, establishing new way of delivery and supporting your software to be build as unikernel can cost significant amount of money. So unikernel in not a silver bullet.<br>
 But if performance and/or security is a key differentiator for your product, like it&rsquo;s game-server or a simple but high-load backend API - it make sense to try unikernels.</p>
 <p>One of the benefits could be the fact that with unikernels, startup/reload time could be the same order of magnitude of time to handle a request by you application - imagine 1-50ms total boot time! Examples could be: on-the-fly updates in realtime apps or serverless apps lifecycle management.</p>
+<p>And I think that in a couple years from now, unikernels can really catch up containers in popularity, especially for more high-load/high-secure applications.</p>
 <h2 id="how-it-works">How it works</h2>
 <p>Here is a nice picture showing software layers comparison, from one of the most well-known <a href="https://mort.io/publications/pdf/asplos13-unikernels.pdf">papers on unikernels</a>:</p>
 <p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
@@ -88,7 +90,7 @@ Here is an example of typical memory layout in operating systems:</p>
   <img src="/unikernels/memory-layout.png"/>
 </p>  
 <p>At this case, each process isolated from the others and the kernel with it&rsquo;s own virtual memory.<br>
-Instead, in unikernels, there is no such thing as &ldquo;process&rdquo; at all, as well as &ldquo;kernel&rdquo;. Only a single address space, where all code and data share the same memory address range.</p>
+Instead, in unikernels, there is no such thing as &ldquo;process&rdquo; at all, as well as &ldquo;user/kernel space&rdquo;. Only a single address space, where all code and data share the same memory address range.</p>
 <h3 id="multithreading">Multithreading</h3>
 <p>In Mirage (as we&rsquo;re still referring to <a href="https://mort.io/publications/pdf/asplos13-unikernels.pdf">this paper</a>), since it&rsquo;s written in OCaml, threads are being managed by <a href="https://github.com/ocsigen/lwt?tab=readme-ov-file">lwt</a>. It implements <a href="https://en.wikipedia.org/wiki/Cooperative_multitasking#Cooperative_multitasking.2Ftime-sharing">cooperative multitasking</a>, with an option to create preemptive threads (it maintains a pool of system threads inside).<br>
 So it&rsquo;s basically depends on which kind of runtime is being used for the concrete unikernel implementation.</p>
@@ -113,7 +115,7 @@ In the paper, they provided nice analysis of the performance:</p>
 </p>  
 <p>As expected, unikernel approach has significant advantage in both startup time and amount of RPS handled by the web app.</p>
 <h3 id="hermit-os">Hermit OS</h3>
-<p><a href="https://github.com/hermit-os/kernel">Hermit</a> is another implementation on unikernels, initially started as <a href="https://github.com/hermit-os/libhermit">C project</a>, and now re-implemented in Rust.</p>
+<p><a href="https://github.com/hermit-os/kernel">Hermit</a> is another implementation of unikernels, initially started as <a href="https://github.com/hermit-os/libhermit">C project</a>, and now re-implemented in Rust.</p>
 <p>It&rsquo;s more flexible comparing to Mirage, since we now can implement apps in C/C++/Go/Fortran.<br>
 In case of Rust, they have <a href="https://github.com/hermit-os/hermit-rs">special crate</a>.<br>
 Hermit uses it&rsquo;s own <a href="https://github.com/hermit-os/loader">loader</a> to load in QEMU/KVM. Authors even implemented their own lightweight hypervisor <a href="https://github.com/hermit-os/uhyve">uhyve</a> (100% Rust).<br>
