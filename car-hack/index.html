@@ -39,7 +39,7 @@
     <h2 id="intro">Intro</h2>
 <p>If you&rsquo;re driving a car you&rsquo;ve probably seen the <a href="https://en.wikipedia.org/wiki/On-board_diagnostics">On-Board Diagnostics port</a> (OBD for short) under the steering wheel. That is a standardized interface for accessing the vehicle&rsquo;s diagnostic information. It&rsquo;s typically used by mechanics and diagnostic tools to retrieve data related to the engine, transmission, and other essential systems. They usually use some manufacturer-approved hardware. What makes it interesting is that we can read data from almost any major device in the vehicle and even control some of them. Let&rsquo;s go a bit deeper.<br>
 Here is pin-out of OBD-II port:</p>
-<p style="display: block; margin-left: auto; margin-right: auto; max-width: 60%">
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
   <img src="/car-hack/obdII.png" style="background-color: #ffffff" /> 
 </p>  
 <p>As you see, we have here two pins (6 and 14) for the differential <a href="https://www.csselectronics.com/pages/can-bus-simple-intro-tutorial">CAN interface</a>. It’s a bus, where any device (ECU - &ldquo;electronic control units&rdquo;) can send a message to all others. It&rsquo;s particularly well-suited for real-time applications and is designed to operate in noisy electrical environments typical in vehicles. That thing is exactly what we need.<br>
@@ -58,8 +58,8 @@ Keep in mind, that for some real-time application it makes more sense to connect
 [ 8603.749664] usbcore: registered new interface driver peak_usb
 </code></pre><h3 id="using-elm327httpswwwelmelectronicscomobdichtmlelm327-devices">Using <a href="https://www.elmelectronics.com/obdic.html#ELM327">ELM327</a> devices</h3>
 <p>That&rsquo;s basically a microcontroller which converts signals from a vehicle&rsquo;s OBD-II port into the <a href="https://en.wikipedia.org/wiki/RS-232">RS232</a> serial interface and in the end provides the USB interface, which makes it easy to read/write signals with your regular PC.</p>
-<p style="display: block; margin-left: auto; margin-right: auto; max-width: 60%">
-  <img src="/car-hack/elm-327-2.jpg" style="background-color: #ffffff" /> 
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/car-hack/elm-327-2.jpg" style="background-color: #ffffff"/> 
 </p>
 <p>This is the cheapest solution to get some data from your vehicle&rsquo;s ECUs.<br>
 The communication based on queries, which must be sent from &ldquo;client&rdquo; (your PC at this case) side to <code style="background-color: #808080;">elm327</code> controller. Also this thing is slow. But it widely used, for example, to read status and identify errors from different devices in the car.<br>
@@ -176,8 +176,8 @@ Remember, that in Linux, everything is a file - so you can apply standard read/w
 </code></pre><p>To monitor the logfile while writing:</p>
 <pre tabindex="0"><code>tail -f /tmp/elm_speed.csv
 </code></pre><p>After reading the captured log file we can draw a graph of vehicle&rsquo;s speed change over time:</p>
-<p style="display: block; margin-left: auto; margin-right: auto; max-width: 100%">
-  <img src="/car-hack/speed_test_3.png" style="background-color: #ffffff" /> 
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/car-hack/speed_test_3.png" style="background-color: #ffffff"/> 
 </p>
 <p>voilà</p>
 <p>You can do the same trick with any ECU you can find PID for and use that data for your research!</p>

@@ -49,8 +49,8 @@ While compiling the graph, TensorFlow applies various optimizations, like runnin
 </span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Result: </span><span style="color:#e6db74">{</span>x<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
 </span></span></code></pre></div><p>The main disadvantage of such an approach, compared to the “graph” mode - performance.</p>
 <p>Here is the inference time comparison for the <code style="background-color: #808080;">mobilenetv2</code> classifier on Intel MacBook 2019 (CPU):</p>
-<p style="display: flex; justify-content: space-between"> 
-  <img src="/tf1-vs-tf2-static/inference-time.png" width=500px style="background-color: #ffffff" />
+<p style="display: flex; justify-content: space-between; width: 100%; height: auto;"> 
+  <img src="/tf1-vs-tf2-static/inference-time.png" width=600px style="background-color: #ffffff" />
 </p>  
 <p>As you can see, the relative difference could be huge - up to ~3-4 times. Also, inference time distribution for the eager mode is spread.</p>
 <p>So, you can still develop your model in eager (default) mode in tf 2.0, but you need to enable graph execution when using the training pipeline for inference. Here are some tips on how to switch between eager and graph modes in tf &gt;=2.0:</p>

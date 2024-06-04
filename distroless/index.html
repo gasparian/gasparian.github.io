@@ -232,14 +232,14 @@ Save the resulting list of libs somewhere.</p>
 <ul>
 <li>CPU-based one. First clear benefit - image size reduction: <strong>~2.3 Gb vs ~1.3 Gb</strong> → decreased image delivery time. You can see the differences below (on the left - old way, on the right - distroless):</li>
 </ul>
-<p style="display: block; margin-left: auto; margin-right: auto">
-  <img src="/distroless/size_comparison.png" height=500px/>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/distroless/size_comparison.png"/>
 </p>  
 <ul>
 <li>Next application uses CUDA. We can reduce the size of the resulting image more than x2 times, for pytorch, if we copy only torch python package into the distroless part, without need to copy other cuda libs (and even use just python-slim as a base image instead of ubuntu with cuda). In the end the difference is: <strong>~11 Gb vs ~4.5 Gb</strong>.</li>
 </ul>
-<p style="display: block; margin-left: auto; margin-right: auto">
-  <img src="/distroless/size_comparison_gpu.png" height=500px/>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/distroless/size_comparison_gpu.png"/>
 </p>  
 <hr>
 

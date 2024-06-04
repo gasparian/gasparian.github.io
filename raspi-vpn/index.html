@@ -8,7 +8,7 @@ Intro VPNs are primarily designed to create a secure and encrypted connection be
 
   <title>
     
-      Raspberry PI as a VPN server?
+      Raspberry PI as a VPN server
     
   </title>
 
@@ -33,7 +33,7 @@ Intro VPNs are primarily designed to create a secure and encrypted connection be
         </time>
     </p>
 
-    <h1>Raspberry PI as a VPN server?</h1>
+    <h1>Raspberry PI as a VPN server</h1>
 
     
 
@@ -52,8 +52,8 @@ Intro VPNs are primarily designed to create a secure and encrypted connection be
 <p>Let&rsquo;s start from the hardware part - <strong>Raspberry PI</strong> looks like a good option, since it&rsquo;s a powerful mini-computer with all needed interfaces.<br>
 The best option to buy it in terms of money - order in China, it&rsquo;s used 4B with 8Gb of RAM as an example, but you can choose simpler model without Ethernet/USB-A and with 2 Gb RAM - it should serve the needs of a couple users just fine.<br>
 I suggest to buy a complete set with the housing and a power unit, like <a href="https://www.aliexpress.com/item/1005004388968309.html?spm=a2g0o.order_list.order_list_main.41.4ace1802HcxGeZ">this one</a>.</p>
-<p style="display: block; margin-left: auto; margin-right: auto; max-width: 60%"> 
-  <img src="/raspi-vpn-static/raspi-1.jpg" />
+<p style="display: block; margin-left: auto; margin-right: auto; max-width: 60%; height: auto;"> 
+  <img src="/raspi-vpn-static/raspi-1.jpg"/>
 </p>  
 <h3 id="assembling">Assembling</h3>
 <p>Assembling is usually super-easy:</p>
@@ -61,11 +61,11 @@ I suggest to buy a complete set with the housing and a power unit, like <a href=
 <li>place heat sinks from the set on CPU, RAM and network controller</li>
 <li>mount a fan on the top side of housing &ndash;&gt; connect it to either 3V or 5V on-board power via GPIO, here is a pinout:</li>
 </ul>
-<p style="display: block; margin-left: auto; margin-right: auto; max-width: 80%"> 
+<p style="display: block; margin-left: auto; margin-right: auto; max-width: 80%; height: auto;"> 
   <img src="/raspi-vpn-static/Raspberry-Pi-GPIO-Header-with-Photo.png" />
 </p>
 <p>Here is how it looks like assembled:</p>
-<p style="display: block; margin-left: auto; margin-right: auto; max-width: 60%"> 
+<p style="display: block; margin-left: auto; margin-right: auto; max-width: 60%; height: auto;"> 
   <img src="/raspi-vpn-static/raspi-inside-1.jpg" />
 </p>  
 <h3 id="raspi-configuration">Raspi configuration</h3>
@@ -154,7 +154,7 @@ I suggest to buy a complete set with the housing and a power unit, like <a href=
 </ul>
 </li>
 </ul>
-<p style="display: block; margin-left: auto; margin-right: auto"> 
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;"> 
   <img src="/raspi-vpn-static/tmux-3.png" />  
 </p>
 <h2 id="vpn">VPN</h2>
@@ -181,7 +181,7 @@ The main con is that it&rsquo;s super easy to configure and use out of the box.<
 </ul>
 </li>
 </ul>
-<p style="display: block; margin-left: auto; margin-right: auto; max-width: 60%">
+<p style="display: block; margin-left: auto; margin-right: auto; max-width: 60%; height: auto;">
   <img src="/raspi-vpn-static/outline-manager.png" />  
 </p>
 <h3 id="v2ray-flexible-lower-level-less-user-friendly-dont-use-if-code-stylebackground-color-808080outlinecode-is-enough">V2Ray (flexible, lower-level, less user-friendly, don&rsquo;t use if <code style="background-color: #808080;">Outline</code> is enough)</h3>
