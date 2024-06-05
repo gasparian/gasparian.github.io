@@ -82,7 +82,7 @@ Instead of a full OS, the unikernel directly compiles application code along wit
 </ul>
 <p>After the compilation stage, the unikernel binary being loaded into hypervisor via bootloader. Usually, unikernels compiled in a way that they &ldquo;know&rdquo; about which hypervisor it will be run on - there is a special kind of virtualization used there, usually reffered as <a href="https://en.wikipedia.org/wiki/Paravirtualization">paravirtualization</a>. Such apps should be run with special bootloader, which itself is a PV kernel which behaves as a bootlaoder.</p>
 <h3 id="runtime">Runtime</h3>
-<p>Runtime is a specialized runtime environment tailored for running on a hypervisor. It replaces the traditional OS kernel, providing essential services such as memory management, scheduling, and I/O operations. The unikernel integrates the language runtime (e.g., OCaml runtime for MirageOS) and necessary protocol libraries (e.g., TCP/IP stack, file systems) compiled directly with the application code.</p>
+<p>Runtime is a specialized environment tailored for running on a hypervisor. It replaces the traditional OS kernel, providing essential services such as memory management, scheduling, and I/O operations. The unikernel integrates the language runtime (e.g., OCaml runtime for MirageOS) and necessary protocol libraries (e.g., TCP/IP stack, file systems) compiled directly with the application code.</p>
 <h3 id="memory">Memory</h3>
 <p>Unlike traditional OS with multiple address spaces, unikernels use a single address space, reducing context-switching overhead and improving performance.<br>
 Here is an example of typical memory layout in operating systems:</p>
@@ -126,7 +126,7 @@ Here we can see software layers comparison between the regular Rust app and Rust
   <img src="/unikernels/rusty-hermit-stack.png" />
 </p>  
 Quite similar to what we observed earlier with Mirage example.  
-<p>And here is a quite interesting table showing difference of in CPU cycles for certain small operations:</p>
+<p>And here is a quite interesting table showing difference of CPU cycles for certain small operations:</p>
 <p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
   <img src="/unikernels/rusty-hermit-cycles.png" />
 </p>  
