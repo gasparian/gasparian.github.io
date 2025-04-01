@@ -4,11 +4,12 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
    <meta name="description" content="Disclaimer: All content on this blog is intended for educational purposes only. Only you is liable for any consequences resulting from your use of this information. You should always respect laws of your country.
-Intro VPNs are primarily designed to create a secure and encrypted connection between your device and a remote server. This connection can be used to protect online privacy, hide your IP address, access geo-restricted content, and enhance security when connecting to the internet, especially on public Wi-Fi networks.">  
+Intro
+VPNs are primarily designed to create a secure and encrypted connection between your device and a remote server. This connection can be used to protect online privacy, hide your IP address and enhance security when connecting to the internet, especially on public Wi-Fi networks.">  
 
   <title>
     
-      Raspberry PI as a VPN server
+      Home VPN
     
   </title>
 
@@ -17,7 +18,7 @@ Intro VPNs are primarily designed to create a secure and encrypted connection be
   
   
   
-  <link rel="stylesheet" href="/css/main.805853392833461a175679cfa9ebb7a56e1a094874d51433f3504a38333b3e01fd0f4ae14e02a14d4efbced1b6872b03478a9b34a3427abc9d29d73b2b0ca514.css" integrity="sha512-gFhTOSgzRhoXVnnPqeu3pW4aCUh01RQz81BKODM7PgH9D0rhTgKhTU77ztG2hysDR4qbNKNCerydKdc7KwylFA==" />
+  <link rel="stylesheet" href="/css/main.51652302d3a998bf7887aed5c2cf89141bbebdf45a2c8f87b0717a3cf4f51c4e53c694c328fb1de78c3a625a1c01f80745bf1f2f42c040647a245cbbb6c2d1d7.css" integrity="sha512-UWUjAtOpmL94h67Vws&#43;JFBu&#43;vfRaLI&#43;HsHF6PPT1HE5TxpTDKPsd54w6YlocAfgHRb8fL0LAQGR6JFy7tsLR1w==" />
   
 </head>
 <body a="auto">
@@ -33,41 +34,22 @@ Intro VPNs are primarily designed to create a secure and encrypted connection be
         </time>
     </p>
 
-    <h1>Raspberry PI as a VPN server</h1>
+    <h1>Home VPN</h1>
 
     
 
     <p><em><strong>Disclaimer</strong>: All content on this blog is intended for educational purposes only. Only you is liable for any consequences resulting from your use of this information. You should always respect laws of your country.</em></p>
 <h2 id="intro">Intro</h2>
-<p>VPNs are primarily designed to create a secure and encrypted connection between your device and a remote server. This connection can be used to protect online privacy, hide your IP address, access geo-restricted content, and enhance security when connecting to the internet, especially on public Wi-Fi networks.</p>
-<p>So the title reflects the core idea - let&rsquo;s configure our own VPN server without a cloud and stupid subscriptions that constantly drain your money. You pay once - you use it forever (almost).</p>
-<p>It comes with the cost of spending some time and money before you can use it:</p>
-<ul>
-<li>buy a computer</li>
-<li>find a place where you can safely mount it and connect to the network</li>
-<li>run the vpn/proxy server on device</li>
-<li>configure access to the device from the internet</li>
-</ul>
+<p>VPNs are primarily designed to create a secure and encrypted connection between your device and a remote server. This connection can be used to protect online privacy, hide your IP address and enhance security when connecting to the internet, especially on public Wi-Fi networks.</p>
+<p>So let&rsquo;s configure our own, home VPN server without a paid cloud. Pay once ;)</p>
 <h2 id="hardware">Hardware</h2>
-<p>Let&rsquo;s start from the hardware part - <strong>Raspberry PI</strong> looks like a good option, since it&rsquo;s a powerful mini-computer with all needed interfaces.<br>
-The best option to buy it in terms of money - order in China, it&rsquo;s used 4B with 8Gb of RAM as an example, but you can choose simpler model without Ethernet/USB-A and with 2 Gb RAM - it should serve the needs of a couple users just fine.<br>
+<p><strong>Raspberry PI</strong> looks like a good option, since it&rsquo;s a powerful mini-computer with all needed interfaces for the fair price.<br>
+The best option to buy it - order in China. I&rsquo;ve used pi4B with 8Gb of RAM as an example, but you can choose simpler model without Ethernet/USB-A and with 2 Gb RAM - it should serve the needs of a couple users just fine.<br>
 I suggest to buy a complete set with the housing and a power unit, like <a href="https://www.aliexpress.com/item/1005004388968309.html?spm=a2g0o.order_list.order_list_main.41.4ace1802HcxGeZ">this one</a>.</p>
-<p style="display: block; margin-left: auto; margin-right: auto; max-width: 60%; height: auto;"> 
-  <img src="/raspi-vpn-static/raspi-1.jpg"/>
-</p>  
-<h3 id="assembling">Assembling</h3>
-<p>Assembling is usually super-easy:</p>
-<ul>
-<li>place heat sinks from the set on CPU, RAM and network controller</li>
-<li>mount a fan on the top side of housing &ndash;&gt; connect it to either 3V or 5V on-board power via GPIO, here is a pinout:</li>
-</ul>
-<p style="display: block; margin-left: auto; margin-right: auto; max-width: 80%; height: auto;"> 
-  <img src="/raspi-vpn-static/Raspberry-Pi-GPIO-Header-with-Photo.png" />
-</p>
-<p>Here is how it looks like assembled:</p>
-<p style="display: block; margin-left: auto; margin-right: auto; max-width: 60%; height: auto;"> 
-  <img src="/raspi-vpn-static/raspi-inside-1.jpg" />
-</p>  
+<div style="display: flex; justify-content: center; align-items: center; gap: 20px; max-width: 60%; margin: 20px auto;">
+  <img src="/raspi-vpn-static/raspi-1.jpg" style="max-width: 100%; height: auto;" />
+  <img src="/raspi-vpn-static/raspi-inside-1.jpg" style="max-width: 100%; height: 450px; object-fit: cover; object-position: center;" />
+</div>
 <h3 id="raspi-configuration">Raspi configuration</h3>
 <p>Installing OS:</p>
 <ul>
@@ -104,7 +86,7 @@ I suggest to buy a complete set with the housing and a power unit, like <a href=
 <li>move to the public key authentication instead of a password for ssh access:
 <ul>
 <li>generate password-protected ssh keys pair, if you don&rsquo;t have it yet: <code style="background-color: #808080;">ssh-keygen -o -a 64 -t ed25519 -f ~/.ssh/id_ed255194</code></li>
-<li>log in to PI and add generated <code style="background-color: #808080;">~/.ssh/id_ed25519.pub</code> to the <code style="background-color: #808080;">~/.ssh/authorized_keys</code></li>
+<li>log in to PI and add generated <code style="background-color: #808080;"><del>/.ssh/id_ed25519.pub</code> to the <code style="background-color: #808080;"></del>/.ssh/authorized_keys</code></li>
 <li>Turn off access by password:
 <ul>
 <li>go to <code style="background-color: #808080;">/etc/ssh/sshd_config</code> file and change the <code style="background-color: #808080;">PasswordAuthentication</code> to <code style="background-color: #808080;">no</code></li>
@@ -159,19 +141,19 @@ I suggest to buy a complete set with the housing and a power unit, like <a href=
 </p>
 <h2 id="vpn">VPN</h2>
 <p>The problem is that nowadays it&rsquo;s pretty easy to sniff the traffic with <a href="https://en.wikipedia.org/wiki/Deep_packet_inspection">dpi</a> technologies, detect packets of the popular VPN protocols and block them.<br>
-The general solution is to built a proxy based on protocol like <a href="https://shadowsocks.org/">Shadowsocks</a>, which is designed to be hard to detect, to bypassing firewalls and add traffic encryption on top.<br>
-We will be considering two solutions proven to be reliable: <a href="https://github.com/Jigsaw-Code/outline-server">outline</a> and <a href="https://github.com/v2ray/v2ray-core">v2ray</a> (strictly speaking they&rsquo;re two different things, but it will be a bit explained later).</p>
-<h3 id="outline-easy-fast-default-way">Outline (easy, fast, default way)</h3>
+The general solution is to built a proxy based on protocol like <a href="https://shadowsocks.org/">Shadowsocks</a>, which is designed to be hard to detect, bypass firewalls and have traffic encryption. <br>
+Let&rsquo;s consider two solutions proven to be reliable: <a href="https://github.com/Jigsaw-Code/outline-server">outline</a> and <a href="https://github.com/XTLS/Xray-core">XRay (Vless)</a>.<br>
+Prefer Vless, if you have concerns about stability of outline in your region.</p>
+<h3 id="outline">Outline</h3>
 <p><a href="https://getoutline.org/">Outline</a> is a set of applications developed by Jigsaw (a subsidiary of Alphabet Inc., which is also the parent company of Google) that allows to set up VPN servers.<br>
 Outline uses the Shadowsocks protocol for communication between the client and server. Traffic is encrypted with the IETF ChaCha20 stream cipher and authenticated with the IETF Poly1305 authenticator.<br>
 The main con is that it&rsquo;s super easy to configure and use out of the box.</p>
-<p>Setting up:</p>
-<ul>
-<li>install docker: <a href="https://docs.docker.com/engine/install/ubuntu/">https://docs.docker.com/engine/install/ubuntu/</a></li>
-<li>now, we need to use <code style="background-color: #808080;">arm</code>-based outline server image, I&rsquo;ve used slightly outdated one, which could be found by <a href="https://github.com/kugaevsky/outline-server-arm64">this link</a>. It just uses several binaries that compiled for the <code style="background-color: #808080;">arm</code> platform and appropriate node docker image. You just need to execute install shell script in order to run the server</li>
-<li>allow outline-specific ports in <code style="background-color: #808080;">ufw</code>: <code style="background-color: #808080;">14393</code> - both tcp and udp, <code style="background-color: #808080;">60866</code> - tcp</li>
-<li>configure port forwarding on the router, like you did previously for ssh: <code style="background-color: #808080;">14393</code> - both tcp and udp, <code style="background-color: #808080;">60866</code> - tcp</li>
-<li>go to your <em>desktop machine</em> and run the Outline manager to generate access keys:
+<h4 id="setting-up">Setting up</h4>
+<p>Install docker: <a href="https://docs.docker.com/engine/install/ubuntu/">https://docs.docker.com/engine/install/ubuntu/</a>.<br>
+Now, we need to use <code style="background-color: #808080;">arm</code>-based outline server image, I&rsquo;ve used slightly outdated one, which could be found by <a href="https://github.com/kugaevsky/outline-server-arm64">this link</a>. It just uses several binaries that compiled for the <code style="background-color: #808080;">arm</code> platform and appropriate node docker image. You just need to execute install shell script in order to run the server.<br>
+Allow outline-specific ports in <code style="background-color: #808080;">ufw</code>: <code style="background-color: #808080;">14393</code> - both tcp and udp, <code style="background-color: #808080;">60866</code> - tcp.<br>
+Configure port forwarding on the router, like you did previously for ssh: <code style="background-color: #808080;">14393</code> - both tcp and udp, <code style="background-color: #808080;">60866</code> - tcp.<br>
+Go to your <em>desktop machine</em> and run the Outline manager to generate access keys:</p>
 <ul>
 <li>clone <a href="https://github.com/kugaevsky/outline-server-arm64">the repo</a> that you used to run outline server</li>
 <li>install node if you don&rsquo;t have it, presumably via <a href="https://github.com/nvm-sh/nvm#installing-and-updating">nvm</a></li>
@@ -179,43 +161,140 @@ The main con is that it&rsquo;s super easy to configure and use out of the box.<
 <li><code style="background-color: #808080;">npm run action server_manager/electron_app/start ${PLATFORM}</code> where <code style="background-color: #808080;">PLATFORM</code> is <code style="background-color: #808080;">linux/macos/windows</code></li>
 <li>generate keys through the UI and share with others! Depending on platform you just need to install the outline client and you&rsquo;re ready to go (<a href="https://github.com/Jigsaw-Code/outline-client/tree/master/src/cordova/apple">mac/ios</a>, <a href="https://github.com/Jigsaw-Code/outline-client/tree/master/src/cordova/android">android</a>, <a href="https://github.com/Jigsaw-Code/outline-client/tree/master/src/electron">win/linux</a>)</li>
 </ul>
-</li>
-</ul>
 <p style="display: block; margin-left: auto; margin-right: auto; max-width: 60%; height: auto;">
   <img src="/raspi-vpn-static/outline-manager.png" />  
 </p>
-<h3 id="v2ray-flexible-lower-level-less-user-friendly-dont-use-if-code-stylebackground-color-808080outlinecode-is-enough">V2Ray (flexible, lower-level, less user-friendly, don&rsquo;t use if <code style="background-color: #808080;">Outline</code> is enough)</h3>
-<p><a href="https://www.v2ray.com/en/index.html">V2Ray</a> is an open-source proxy software project that was developed primarily to improve upon the shortcomings of other proxy protocols and provide advanced features for secure and efficient internet communication. So it rather should be compared with Shadowsocks protocol itself and called it&rsquo;s successor (after the original Shadowsocks has been removed from the internet by the call from the government), rather than higher-level vpn/proxy solutions like Outline.<br>
-It is highly configurable (which is not always good, lol) and uses low to none of external dependencies - just pure <code style="background-color: #808080;">go</code>, which simplifies configuration of the environment (static binary and we&rsquo;re ready to go). Also, one of the disadvantages is that the default protocol <a href="https://www.v2fly.org/en_US/developer/protocols/vmess.html">vmess</a> by default is a TCP-based stream protocol, which for UDP means &ndash;&gt; &ldquo;UDP over TCP&rdquo;.<br>
-Let&rsquo;s configure <code style="background-color: #808080;">vmess</code>:</p>
+<h3 id="xray-vless">XRay (Vless)</h3>
+<p><a href="https://xtls.github.io/en/development/protocols/vless.html">VLESS</a> is a lightweight, stateless transport protocol primarily used for secure communication. It is part of Xray, a project that extends and enhances the capabilities of <a href="https://www.v2ray.com/en/index.html">V2Ray</a>. V2Ray can be compared with Shadowsocks protocol and can be called it&rsquo;s successor (after the original Shadowsocks has been removed from the internet by the call from the government), rather than higher-level vpn/proxy solutions like Outline.<br>
+Xray supports VLESS, while V2Ray does not natively include it, making Xray the appropriate choice for this setup.<br>
+So, let&rsquo;s configure XRay server and client.</p>
+<h4 id="xray-server">XRay Server</h4>
+<p>Install XRay Server:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>bash -c <span style="color:#e6db74">&#34;</span><span style="color:#66d9ef">$(</span>curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span>
+</span></span></code></pre></div><p>Generate a client ID:<br>
+<code style="background-color: #808080;">xray uuid</code><br>
+Create that user id for every unique vpn user.<br>
+Generate a self-signed certificate and key:</p>
 <ul>
-<li>use the following <a href="https://www.v2fly.org/en_US/developer/protocols/vmess.html">utility script</a> to install the server:
-<ul>
-<li><code style="background-color: #808080;">curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-release.sh | sudo bash</code></li>
-<li><code style="background-color: #808080;">curl -L https://raw.githubusercontent.com/v2fly/fhs-install-v2ray/master/install-dat-release.sh | sudo bash</code></li>
+<li>install openssl: <code style="background-color: #808080;">sudo apt-get install openssl</code></li>
+<li>generate certificate and key:</li>
 </ul>
-</li>
-<li>enable and start v2ray service <code style="background-color: #808080;">sudo systemctl enable v2ray; sudo systemctl start v2ray</code></li>
-<li>check if all good <code style="background-color: #808080;">sudo systemctl status v2ray</code></li>
-<li>for the proxy configuration (both client and server), I suggest to use <a href="https://www.v2fly.org/en_US/developer/protocols/vmess.html">the following tutorial</a>:
-<ul>
-<li>edit the server config: <code style="background-color: #808080;">sudo vi /usr/local/etc/v2ray/config.json</code>:
-<ul>
-<li>generate the regular uuid, which is used as a &ldquo;password&rdquo;, in the following form <code style="background-color: #808080;">a82d8737-18b8-4f91-81ca-7d69b8f74003</code></li>
-</ul>
-</li>
-<li>restart v2ray <code style="background-color: #808080;">sudo systemctl restart v2ray</code></li>
-</ul>
-</li>
-<li>allow v2ray port from the config in firewall: <code style="background-color: #808080;">sudo ufw allow 10086</code> and check status <code style="background-color: #808080;">sudo ufw status</code></li>
-<li>configure port forwarding on your router for port <code style="background-color: #808080;">10086</code> (tcp)</li>
-<li>watch for <code style="background-color: #808080;">v2ray</code> logs: <code style="background-color: #808080;">sudo tail -f /var/log/v2ray/error.log</code></li>
-<li>download client (<a href="https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690">ios</a>, <a href="https://play.google.com/store/apps/details?id=com.v2ray.ang&amp;hl=en&amp;gl=US">android</a>) and copy there earlier created client config</li>
-</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo openssl req -x509 -nodes -days <span style="color:#ae81ff">99999</span> -newkey rsa:2048 -keyout /etc/xray/key.key -out /etc/xray/cert.crt -subj <span style="color:#e6db74">&#34;/CN=&lt;ROUTER_PUBLIC_DNS&gt;&#34;</span>
+</span></span></code></pre></div><p>This creates a certificate valid for 99999 days (think of smaller number for real &ldquo;prod&rdquo; usage), stored at /etc/xray/cert.crt with the key at /etc/xray/key.key.<br>
+Create a config file at <code style="background-color: #808080;">/usr/local/etc/xray/config.json</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;inbounds&#34;</span>: [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;listen&#34;</span>: <span style="color:#e6db74">&#34;0.0.0.0&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">4443</span>, <span style="color:#75715e">// or another free port
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;vless&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;settings&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;clients&#34;</span>: [
+</span></span><span style="display:flex;"><span>          {
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#960050;background-color:#1e0010">generated_id</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;level&#34;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;flow&#34;</span>: <span style="color:#e6db74">&#34;xtls-rprx-vision&#34;</span>
+</span></span><span style="display:flex;"><span>          }
+</span></span><span style="display:flex;"><span>        ],
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;decryption&#34;</span>: <span style="color:#e6db74">&#34;none&#34;</span>
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;streamSettings&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;network&#34;</span>: <span style="color:#e6db74">&#34;tcp&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;security&#34;</span>: <span style="color:#e6db74">&#34;tls&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;tlsSettings&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;certificates&#34;</span>: [
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">&#34;certificateFile&#34;</span>: <span style="color:#e6db74">&#34;/etc/xray/cert.crt&#34;</span>,
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">&#34;keyFile&#34;</span>: <span style="color:#e6db74">&#34;/etc/xray/key.key&#34;</span>
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>          ]
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;outbounds&#34;</span>: [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;freedom&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;settings&#34;</span>: {}
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Start the service: <code style="background-color: #808080;">sudo systemctl start xray</code><br>
+Enable it to start on boot: <code style="background-color: #808080;">sudo systemctl enable xray</code><br>
+Check the status: <code style="background-color: #808080;">sudo systemctl status xray</code><br>
+Or check logs: <code style="background-color: #808080;">journalctl -u xray</code></p>
+<p>Don&rsquo;t forget to setup port forwarding on your router, as we did before.<br>
+Ensure your firewall allows traffic on a selected port using <code style="background-color: #808080;">ufw</code>.</p>
+<h4 id="xray-clients">XRay Clients</h4>
+<h5 id="mac-os">Mac OS</h5>
+<p>Install xray client:
+<code style="background-color: #808080;">brew install xray</code><br>
+Create a config file:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;log&#34;</span>: {
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;loglevel&#34;</span>: <span style="color:#e6db74">&#34;debug&#34;</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;inbounds&#34;</span>: [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">1080</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;socks&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;settings&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;auth&#34;</span>: <span style="color:#e6db74">&#34;noauth&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;udp&#34;</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;outbounds&#34;</span>: [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;vless&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;settings&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;vnext&#34;</span>: [
+</span></span><span style="display:flex;"><span>          {
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;address&#34;</span>: <span style="color:#960050;background-color:#1e0010">router_ipv</span><span style="color:#ae81ff">4</span><span style="color:#960050;background-color:#1e0010">_address</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">4443</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;users&#34;</span>: [
+</span></span><span style="display:flex;"><span>              {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#960050;background-color:#1e0010">generated_id</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;encryption&#34;</span>: <span style="color:#e6db74">&#34;none&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;flow&#34;</span>: <span style="color:#e6db74">&#34;xtls-rprx-vision&#34;</span>
+</span></span><span style="display:flex;"><span>              }
+</span></span><span style="display:flex;"><span>            ]
+</span></span><span style="display:flex;"><span>          }
+</span></span><span style="display:flex;"><span>        ]
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;streamSettings&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;network&#34;</span>: <span style="color:#e6db74">&#34;tcp&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;security&#34;</span>: <span style="color:#e6db74">&#34;tls&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;tlsSettings&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;serverName&#34;</span>: <span style="color:#960050;background-color:#1e0010">server_name</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;allowInsecure&#34;</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Here, <code style="background-color: #808080;">serverName</code> is the <code style="background-color: #808080;">CN</code> that you&rsquo;ve used during certs generation.</p>
+<p>Run the client:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>xray -config /usr/local/etc/xray/config.json
+</span></span></code></pre></div><p>Allow proxy in the network settings: go to wifi details &ndash;&gt; set SOCKS as 127.0.0.1 and port 1080 &ndash;&gt; toggle allow.</p>
+<h5 id="mobile">Mobile</h5>
+<p>Install <a href="https://en.v2rayng.org/">v2rayNG</a> from the store.<br>
+The simplest way to configure would be just to construct a link and paste into the app:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>vless://&lt;generated_id&gt;@&lt;router_public_dns&gt;:&lt;port&gt;?security<span style="color:#f92672">=</span>tls&amp;flow<span style="color:#f92672">=</span>xtls-rprx-vision&amp;sni<span style="color:#f92672">=</span>&lt;router_piblic_dns&gt;&amp;allowInsecure<span style="color:#f92672">=</span>1#&lt;connection_name&gt;
+</span></span></code></pre></div><p>Where all the args could be taken from the previously created configs. The last one - just a connection name, use any name you want.</p>
 <hr>
 <p>Enjoy!</p>
 
 </article>
+
+                
+    
+    
+        <!-- This is footer.
+You can edit this in ../nostyleplease/layouts/footer.md -->
+
+    
+
 
             </div>
         </main>

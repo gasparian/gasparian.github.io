@@ -3,10 +3,12 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-   <meta name="description" content="Purpose Unikernels are specialized, single-purpose operating systems designed to run directly on a hypervisor. They are compiled from high-level source code into a standalone kernel that includes only the necessary components to run a specific application.
+   <meta name="description" content="Purpose
+Unikernels are specialized, single-purpose operating systems designed to run directly on a hypervisor. They are compiled from high-level source code into a standalone kernel that includes only the necessary components to run a specific application.
 The main purpose of unikernels is to deploy applications more efficiently and securely, compared to traditional operating systems.
 They are sealed and immutable at compile-time, reducing the attack surface and preventing unauthorized modifications.
-And due to their specialized nature, unikernels often exhibit better performance for their specific tasks, eliminating unnecessary general-purpose OS overhead (there is no such thing as &ldquo;syscall&rdquo; at all).">  
+And due to their specialized nature, unikernels often exhibit better performance for their specific tasks, eliminating unnecessary general-purpose OS overhead (there is no such thing as &ldquo;syscall&rdquo; at all).
+It doesn&rsquo;t have stuff that is not being used by application at runtime: like shell, mouse or floppy-disk driver (current Debian kernels still provide it, lol), etc.">  
 
   <title>
     
@@ -19,7 +21,7 @@ And due to their specialized nature, unikernels often exhibit better performance
   
   
   
-  <link rel="stylesheet" href="/css/main.805853392833461a175679cfa9ebb7a56e1a094874d51433f3504a38333b3e01fd0f4ae14e02a14d4efbced1b6872b03478a9b34a3427abc9d29d73b2b0ca514.css" integrity="sha512-gFhTOSgzRhoXVnnPqeu3pW4aCUh01RQz81BKODM7PgH9D0rhTgKhTU77ztG2hysDR4qbNKNCerydKdc7KwylFA==" />
+  <link rel="stylesheet" href="/css/main.51652302d3a998bf7887aed5c2cf89141bbebdf45a2c8f87b0717a3cf4f51c4e53c694c328fb1de78c3a625a1c01f80745bf1f2f42c040647a245cbbb6c2d1d7.css" integrity="sha512-UWUjAtOpmL94h67Vws&#43;JFBu&#43;vfRaLI&#43;HsHF6PPT1HE5TxpTDKPsd54w6YlocAfgHRb8fL0LAQGR6JFy7tsLR1w==" />
   
 </head>
 <body a="auto">
@@ -221,6 +223,15 @@ And then build it:</p>
 <hr>
 
 </article>
+
+                
+    
+    
+        <!-- This is footer.
+You can edit this in ../nostyleplease/layouts/footer.md -->
+
+    
+
 
             </div>
         </main>
