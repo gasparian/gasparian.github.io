@@ -53,7 +53,7 @@ Intro VPNs are primarily designed to create a secure and encrypted connection be
 The best option to buy it in terms of money - order in China, it&rsquo;s used 4B with 8Gb of RAM as an example, but you can choose simpler model without Ethernet/USB-A and with 2 Gb RAM - it should serve the needs of a couple users just fine.<br>
 I suggest to buy a complete set with the housing and a power unit, like <a href="https://www.aliexpress.com/item/1005004388968309.html?spm=a2g0o.order_list.order_list_main.41.4ace1802HcxGeZ">this one</a>.</p>
 <p style="display: flex; justify-content: space-between;"> 
-  <img src="/en/raspi-vpn-static/raspi-1.jpg" />
+  <img src="/en/home-vpn-static/raspi-1.jpg" />
 </p>  
 <h3 id="assembling">Assembling</h3>
 <p>Assembling is usually super-easy:</p>
@@ -61,10 +61,10 @@ I suggest to buy a complete set with the housing and a power unit, like <a href=
 <li>place heat sinks from the set on CPU, RAM and network controller</li>
 <li>mount a fan on the top side of housing &ndash;&gt; connect it to either 3V or 5V on-board power via GPIO, here is a pinout:</li>
 </ul>
-<img src="/en/raspi-vpn-static/Raspberry-Pi-GPIO-Header-with-Photo.png" />
+<img src="/en/home-vpn-static/Raspberry-Pi-GPIO-Header-with-Photo.png" />
 <p>Here is how it looks like assembled:</p>
 <p style="display: flex; justify-content: space-between;"> 
-  <img src="/en/raspi-vpn-static/raspi-inside-1.jpg" />
+  <img src="/en/home-vpn-static/raspi-inside-1.jpg" />
 </p>  
 <h3 id="raspi-configuration">Raspi configuration</h3>
 <p>Installing OS:</p>
@@ -137,7 +137,7 @@ I suggest to buy a complete set with the housing and a power unit, like <a href=
 </li>
 </ul>
 <p style="display: flex; justify-content: space-between;"> 
-  <img src="/en/raspi-vpn-static/tmux-2.png" />  
+  <img src="/en/home-vpn-static/tmux-2.png" />  
 </p>
 <h2 id="vpn">VPN</h2>
 <p>The problem is that nowadays it&rsquo;s pretty easy to sniff the traffic with <a href="https://en.wikipedia.org/wiki/Deep_packet_inspection">dpi</a> technologies, detect packets of the popular VPN protocols and block them.<br>
@@ -164,7 +164,7 @@ The main con is that it&rsquo;s super easy to configure and use out of the box.<
 </li>
 </ul>
 <p style="display: flex; justify-content: space-between;"> 
-  <img src="/en/raspi-vpn-static/outline-manager.png" />  
+  <img src="/en/home-vpn-static/outline-manager.png" />  
 </p>
 <h3 id="v2ray-flexible-lower-level-less-user-friendly-dont-use-if-code-stylebackground-color-808080outlinecode-is-enough">V2Ray (flexible, lower-level, less user-friendly, don&rsquo;t use if <code style="background-color: #808080;">Outline</code> is enough)</h3>
 <p><a href="https://www.v2ray.com/en/index.html">V2Ray</a> is an open-source proxy software project that was developed primarily to improve upon the shortcomings of other proxy protocols and provide advanced features for secure and efficient internet communication. So it rather should be compared with Shadowsocks protocol itself and called it&rsquo;s successor (after the original Shadowsocks has been removed from the internet by the call from the government), rather than higher-level vpn/proxy solutions like Outline.<br>
