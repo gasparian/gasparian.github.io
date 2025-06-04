@@ -6,8 +6,15 @@
     <description>Recent content on &amp;&gt; /dev/null</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 02 Jun 2024 19:31:04 +0200</lastBuildDate>
+    <lastBuildDate>Sat, 01 Feb 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://gasparian.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>LLMs for On-Premises Deployment</title>
+      <link>https://gasparian.github.io/llm-on-premise/</link>
+      <pubDate>Sat, 01 Feb 2025 00:00:00 +0000</pubDate>
+      <guid>https://gasparian.github.io/llm-on-premise/</guid>
+      <description>&lt;h1 id=&#34;choosing-the-llm&#34;&gt;Choosing the LLM&lt;/h1&gt;&#xA;&lt;p&gt;If order to find current SOTA LLMs, the best way to start - is to gather various LLM benchmarks.&lt;br&gt;&#xA;There are numerous public LLM benchmarking efforts currently available, with the most influential being the &lt;a href=&#34;https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard#/?official=true&#34;&gt;Open LLM Leaderboard&lt;/a&gt; provided by Hugging Face, which attracts approximately &lt;a href=&#34;https://www.semrush.com/website/huggingface.co/overview/&#34;&gt;40 million&lt;/a&gt; monthly visits to the platform and consists of evaluation datasets covering a diverse range of challenges, and &lt;a href=&#34;https://lmarena.ai/?ref=top-ai-list&#34;&gt;LMSYS Chatbot Arena&lt;/a&gt; (also known as &amp;ldquo;LMArena&amp;rdquo;), which employs a &lt;a href=&#34;https://arxiv.org/pdf/2403.04132&#34;&gt;custom approach&lt;/a&gt; to rank models based on human preference, engages millions of monthly &amp;ldquo;players&amp;rdquo; on the platform, and conducts pre-release tests for top-tier AI labs such as OpenAI, xAI, Meta, Google, and others.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Unikernels</title>
       <link>https://gasparian.github.io/unikernels-simple/</link>
@@ -27,7 +34,7 @@
       <link>https://gasparian.github.io/home-vpn/</link>
       <pubDate>Mon, 02 Oct 2023 19:12:58 +0200</pubDate>
       <guid>https://gasparian.github.io/home-vpn/</guid>
-      <description>&lt;p&gt;&lt;em&gt;&lt;strong&gt;Disclaimer&lt;/strong&gt;: All content on this blog is intended for educational purposes only. Only you is liable for any consequences resulting from your use of this information. You should always respect laws of your country.&lt;/em&gt;&lt;/p&gt;&#xA;&lt;h2 id=&#34;intro&#34;&gt;Intro&lt;/h2&gt;&#xA;&lt;p&gt;VPNs are primarily designed to create a secure and encrypted connection between your device and a remote server. This connection can be used to protect online privacy, hide your IP address and enhance security when connecting to the internet, especially on public Wi-Fi networks.&lt;/p&gt;</description>
+      <description>&lt;h2 id=&#34;intro&#34;&gt;Intro&lt;/h2&gt;&#xA;&lt;p&gt;VPNs are primarily designed to create a secure and encrypted connection between your device and a remote server. This connection can be used to protect online privacy, hide your IP address and enhance security when connecting to the internet, especially on public Wi-Fi networks.&lt;/p&gt;&#xA;&lt;p&gt;So let&amp;rsquo;s configure our own, home VPN server without a paid cloud. Pay once ;)&lt;/p&gt;&#xA;&lt;h2 id=&#34;hardware&#34;&gt;Hardware&lt;/h2&gt;&#xA;&lt;p&gt;&lt;strong&gt;Raspberry PI&lt;/strong&gt; looks like a good option, since it&amp;rsquo;s a powerful mini-computer with all needed interfaces for the fair price.&lt;br&gt;&#xA;The best option to buy it - order in China. I&amp;rsquo;ve used pi4B with 8Gb of RAM as an example, but you can choose simpler model without Ethernet/USB-A and with 2 Gb RAM - it should serve the needs of a couple users just fine.&lt;br&gt;&#xA;I suggest to buy a complete set with the housing and a power unit, like &lt;a href=&#34;https://www.aliexpress.com/item/1005004388968309.html?spm=a2g0o.order_list.order_list_main.41.4ace1802HcxGeZ&#34;&gt;this one&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
     <item>
       <title>cProfile</title>
