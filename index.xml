@@ -30,7 +30,7 @@
       <description>&lt;h2 id=&#34;what&#34;&gt;What&lt;/h2&gt;&#xA;&lt;p&gt;ML development relies a lot on large computation frameworks like &lt;code&gt;torch / tensorflow&lt;/code&gt; and wrappers on top of them and we became kind of locked on Python ecosystem. So we got used to deploy python to production.&lt;br&gt;&#xA;For the virtualization, we usually use containers.&lt;br&gt;&#xA;It all comes with the cost of bringing lots of dependencies to our application containers, which leads to huge image sizes and lots of security issues (literally thousands, if you don&amp;rsquo;t update python version/libs versions too often).&lt;br&gt;&#xA;The question is - can we somehow bring only needed pieces of our software stack to prod to reduce the size and increase security of our application?&lt;/p&gt;</description>
     </item>
     <item>
-      <title>Home VPN</title>
+      <title>Home VPN (XRay)</title>
       <link>https://gasparian.github.io/home-vpn/</link>
       <pubDate>Mon, 02 Oct 2023 19:12:58 +0200</pubDate>
       <guid>https://gasparian.github.io/home-vpn/</guid>
