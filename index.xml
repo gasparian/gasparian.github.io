@@ -6,8 +6,15 @@
     <description>Recent content on &amp;&gt; /dev/null</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 01 Feb 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 21 Oct 2025 20:25:08 +0100</lastBuildDate>
     <atom:link href="https://gasparian.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A̶n̶y̶d̶e̶s̶k̶ --&gt; Rustdesk!</title>
+      <link>https://gasparian.github.io/rustdesk/</link>
+      <pubDate>Tue, 21 Oct 2025 20:25:08 +0100</pubDate>
+      <guid>https://gasparian.github.io/rustdesk/</guid>
+      <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;&#xA;&lt;p&gt;&lt;code&gt;AnyDesk&lt;/code&gt; is one of the most popular remote desktop tools, used worldwide—including in some security-sensitive industries. The issue is that closed-source software is hard to audit, and it’s especially risky if the vendor operates in jurisdictions with broad government access powers, like the EU.&lt;/p&gt;&#xA;&lt;p&gt;More specifically, AnyDesk is a German company and (at least for its public infrastructure) relies on third-party OVHcloud hosting (French, based in the EU). I think that in 2025, it’s hard to argue how big of a concern that is ;)&lt;/p&gt;</description>
+    </item>
     <item>
       <title>LLMs for On-Premises Deployment</title>
       <link>https://gasparian.github.io/llm-on-premise/</link>
