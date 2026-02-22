@@ -1,0 +1,13 @@
+{
+	"version": 3,
+	"file": "custom.css",
+	"sourceRoot": "/Users/gas/Documents/blog/tux",
+	"sources": [
+		"assets/css/custom.scss"
+	],
+	"sourcesContent": [
+		".w {\n  max-width: 860px;\n}\n\n@media (max-width: 640px) {\n  .w {\n    padding: 2rem 1rem;\n  }\n}\n\n@media (min-width: 1024px) {\n  .w {\n    padding: 4rem 3rem;\n  }\n}\n\ntable {\n  display: block;\n  max-width: 100%;\n  overflow-x: auto;\n}\n"
+	],
+	"names": [],
+	"mappings": "AAAA,AAAA,EAAE,AAAC,CACD,SAAS,CAAE,KAAK,CACjB,AAED,MAAM,mBACJ,CAAA,AAAA,EAAE,AAAC,CACD,OAAO,CAAE,SAAS,CACnB,CAAA,AAGH,MAAM,oBACJ,CAAA,AAAA,EAAE,AAAC,CACD,OAAO,CAAE,SAAS,CACnB,CAAA,AAGH,AAAA,KAAK,AAAC,CACJ,OAAO,CAAE,KAAK,CACd,SAAS,CAAE,IAAI,CACf,UAAU,CAAE,IAAI,CACjB"
+}
