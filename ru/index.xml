@@ -1,67 +1,67 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>░▒▓█ 虚像 █▓▒░</title>
-    <link>https://gasparian.github.io/</link>
-    <description>Recent content on ░▒▓█ 虚像 █▓▒░</description>
+    <title>&amp;&gt; /dev/null</title>
+    <link>http://localhost:1313/ru/</link>
+    <description>Recent content on &amp;&gt; /dev/null</description>
     <generator>Hugo</generator>
-    <language>en-us</language>
+    <language>ru-ru</language>
     <lastBuildDate>Tue, 21 Oct 2025 20:25:08 +0100</lastBuildDate>
-    <atom:link href="https://gasparian.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/ru/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>A̶n̶y̶d̶e̶s̶k̶ --&gt; Rustdesk!</title>
-      <link>https://gasparian.github.io/rustdesk/</link>
+      <title>Замена A̶n̶y̶d̶e̶s̶k̶ на RustDesk!</title>
+      <link>http://localhost:1313/ru/rustdesk/</link>
       <pubDate>Tue, 21 Oct 2025 20:25:08 +0100</pubDate>
-      <guid>https://gasparian.github.io/rustdesk/</guid>
+      <guid>http://localhost:1313/ru/rustdesk/</guid>
       <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;&#xA;&lt;p&gt;&lt;code&gt;AnyDesk&lt;/code&gt; is one of the most popular remote desktop tools, used worldwide—including in some security-sensitive industries. The issue is that closed-source software is hard to audit, and it’s especially risky if the vendor operates in jurisdictions with broad government access powers, like the EU.&lt;/p&gt;&#xA;&lt;p&gt;More specifically, AnyDesk is a German company and (at least for its public infrastructure) relies on third-party OVHcloud hosting (French, based in the EU). I think that in 2025, it’s hard to argue how big of a concern that is ;)&lt;/p&gt;</description>
     </item>
     <item>
-      <title>LLMs for On-Premises Deployment</title>
-      <link>https://gasparian.github.io/llm-on-premise/</link>
+      <title>LLM для on-premise развертывания</title>
+      <link>http://localhost:1313/ru/llm-on-premise/</link>
       <pubDate>Sat, 01 Feb 2025 00:00:00 +0000</pubDate>
-      <guid>https://gasparian.github.io/llm-on-premise/</guid>
+      <guid>http://localhost:1313/ru/llm-on-premise/</guid>
       <description>&lt;h1 id=&#34;choosing-the-llm&#34;&gt;Choosing the LLM&lt;/h1&gt;&#xA;&lt;p&gt;If order to find current SOTA LLMs, the best way to start - is to gather various LLM benchmarks.&lt;br&gt;&#xA;There are numerous public LLM benchmarking efforts currently available, with the most influential being the &lt;a href=&#34;https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard#/?official=true&#34;&gt;Open LLM Leaderboard&lt;/a&gt; provided by Hugging Face, which attracts approximately &lt;a href=&#34;https://www.semrush.com/website/huggingface.co/overview/&#34;&gt;40 million&lt;/a&gt; monthly visits to the platform and consists of evaluation datasets covering a diverse range of challenges, and &lt;a href=&#34;https://lmarena.ai/?ref=top-ai-list&#34;&gt;LMSYS Chatbot Arena&lt;/a&gt; (also known as &amp;ldquo;LMArena&amp;rdquo;), which employs a &lt;a href=&#34;https://arxiv.org/pdf/2403.04132&#34;&gt;custom approach&lt;/a&gt; to rank models based on human preference, engages millions of monthly &amp;ldquo;players&amp;rdquo; on the platform, and conducts pre-release tests for top-tier AI labs such as OpenAI, xAI, Meta, Google, and others.&lt;/p&gt;</description>
     </item>
     <item>
-      <title>Unikernels</title>
-      <link>https://gasparian.github.io/unikernels-simple/</link>
+      <title>Уникернелы</title>
+      <link>http://localhost:1313/ru/unikernels-simple/</link>
       <pubDate>Sun, 02 Jun 2024 19:31:04 +0200</pubDate>
-      <guid>https://gasparian.github.io/unikernels-simple/</guid>
+      <guid>http://localhost:1313/ru/unikernels-simple/</guid>
       <description>&lt;h2 id=&#34;purpose&#34;&gt;Purpose&lt;/h2&gt;&#xA;&lt;p&gt;Unikernels are specialized, single-purpose operating systems designed to run directly on a &lt;a href=&#34;https://en.wikipedia.org/wiki/Hypervisor&#34;&gt;hypervisor&lt;/a&gt;. They are compiled from high-level source code into a standalone kernel that includes only the necessary components to run a specific application.&lt;/p&gt;&#xA;&lt;p&gt;The main purpose of unikernels is to deploy applications more efficiently and securely, compared to traditional operating systems.&lt;br&gt;&#xA;They are sealed and immutable at compile-time, reducing the attack surface and preventing unauthorized modifications.&lt;br&gt;&#xA;And due to their specialized nature, unikernels often exhibit better performance for their specific tasks, eliminating unnecessary general-purpose OS overhead (there is no such thing as &amp;ldquo;syscall&amp;rdquo; at all).&lt;br&gt;&#xA;It doesn&amp;rsquo;t have stuff that is not being used by application at runtime: like shell, mouse or floppy-disk driver (current Debian kernels still provide it, lol), etc.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Distroless</title>
-      <link>https://gasparian.github.io/distroless/</link>
+      <link>http://localhost:1313/ru/distroless/</link>
       <pubDate>Sun, 24 Mar 2024 19:42:52 +0100</pubDate>
-      <guid>https://gasparian.github.io/distroless/</guid>
+      <guid>http://localhost:1313/ru/distroless/</guid>
       <description>&lt;h2 id=&#34;what&#34;&gt;What&lt;/h2&gt;&#xA;&lt;p&gt;ML development relies a lot on large computation frameworks like &lt;code&gt;torch / tensorflow&lt;/code&gt; and wrappers on top of them and we became kind of locked on Python ecosystem. So we got used to deploy python to production.&lt;br&gt;&#xA;For the virtualization, we usually use containers.&lt;br&gt;&#xA;It all comes with the cost of bringing lots of dependencies to our application containers, which leads to huge image sizes and lots of security issues (literally thousands, if you don&amp;rsquo;t update python version/libs versions too often).&lt;br&gt;&#xA;The question is - can we somehow bring only needed pieces of our software stack to prod to reduce the size and increase security of our application?&lt;/p&gt;</description>
     </item>
     <item>
-      <title>Home VPN (XRay)</title>
-      <link>https://gasparian.github.io/home-vpn/</link>
+      <title>Домашний VPN (XRay)</title>
+      <link>http://localhost:1313/ru/home-vpn/</link>
       <pubDate>Mon, 02 Oct 2023 19:12:58 +0200</pubDate>
-      <guid>https://gasparian.github.io/home-vpn/</guid>
+      <guid>http://localhost:1313/ru/home-vpn/</guid>
       <description>&lt;h1 id=&#34;intro&#34;&gt;Intro&lt;/h1&gt;&#xA;&lt;p&gt;VPNs are primarily designed to create a secure and encrypted connection between your device and a remote server. This connection can be used to protect online privacy, hide your IP address and enhance security when connecting to the internet, especially on public Wi-Fi networks.&lt;/p&gt;&#xA;&lt;p&gt;So let&amp;rsquo;s configure our own, home VPN server without a paid cloud. Pay once ;)&lt;/p&gt;&#xA;&lt;h1 id=&#34;hardware&#34;&gt;Hardware&lt;/h1&gt;&#xA;&lt;p&gt;&lt;strong&gt;Raspberry PI&lt;/strong&gt; looks like a good option, since it&amp;rsquo;s a powerful mini-computer with all needed interfaces for the fair price.&lt;br&gt;&#xA;The best option to buy it - order in China. I&amp;rsquo;ve used pi4B with 8Gb of RAM as an example, but you can choose simpler model without Ethernet/USB-A and with 2 Gb RAM - it should serve the needs of a couple users just fine.&lt;br&gt;&#xA;I suggest to buy a complete set with the housing and a power unit, like &lt;a href=&#34;https://www.aliexpress.com/item/1005004388968309.html?spm=a2g0o.order_list.order_list_main.41.4ace1802HcxGeZ&#34;&gt;this one&lt;/a&gt;.&lt;/p&gt;</description>
     </item>
     <item>
       <title>cProfile</title>
-      <link>https://gasparian.github.io/python-profiling/</link>
+      <link>http://localhost:1313/ru/python-profiling/</link>
       <pubDate>Wed, 03 May 2023 00:00:00 +0000</pubDate>
-      <guid>https://gasparian.github.io/python-profiling/</guid>
+      <guid>http://localhost:1313/ru/python-profiling/</guid>
       <description>&lt;p&gt;There are quite some profiling tools for Python, like popular &lt;a href=&#34;https://github.com/plasma-umass/scalene&#34;&gt;scalene&lt;/a&gt;. But I like python for simplicity and really like to use some &amp;ldquo;default&amp;rdquo; tools from the standard python toolchain - so &lt;a href=&#34;https://docs.python.org/3.8/library/profile.html&#34;&gt;cProfile&lt;/a&gt; is my choice.&lt;br&gt;&#xA;It doesn&amp;rsquo;t require fine-grained code annotation and very simple to use.&lt;br&gt;&#xA;It shows stats on how much time is spent while executing certain functions. Really easy to work and interpret.&lt;/p&gt;&#xA;&lt;h2 id=&#34;run&#34;&gt;Run&lt;/h2&gt;&#xA;&lt;p&gt;For example, the following command will run profiling on each function that is being run inside the &lt;code style=&#34;background-color: #808080;&#34;&gt;main.py&lt;/code&gt; and display the stats sorted by cumulative time:&lt;/p&gt;</description>
     </item>
     <item>
-      <title>OpenCV CUDA on 🛞`s</title>
-      <link>https://gasparian.github.io/opencv-cuda/</link>
+      <title>OpenCV CUDA на 🛞`ах</title>
+      <link>http://localhost:1313/ru/opencv-cuda/</link>
       <pubDate>Fri, 27 Jan 2023 00:00:00 +0000</pubDate>
-      <guid>https://gasparian.github.io/opencv-cuda/</guid>
+      <guid>http://localhost:1313/ru/opencv-cuda/</guid>
       <description>&lt;p&gt;I think we all know &lt;a href=&#34;https://github.com/opencv/opencv&#34;&gt;opencv&lt;/a&gt; - it’s a pretty old yet widely used and performant computer vision library with a lot of useful algorithms. One of the advantages of it - you can configure opencv how you want to get really nice performance gain. One of the ways - compile it to multiply matrices on GPUs to speed up both &amp;ldquo;old&amp;rdquo; CV filters (which are essentially convolutions) and use deep learning inference (yes, you can do it in opencv with the special module added).&lt;/p&gt;</description>
     </item>
     <item>
-      <title>Harmless car hack</title>
-      <link>https://gasparian.github.io/car-hack/</link>
+      <title>Безобидный взлом автомобиля</title>
+      <link>http://localhost:1313/ru/car-hack/</link>
       <pubDate>Tue, 14 Apr 2020 00:00:00 +0000</pubDate>
-      <guid>https://gasparian.github.io/car-hack/</guid>
+      <guid>http://localhost:1313/ru/car-hack/</guid>
       <description>&lt;h2 id=&#34;intro&#34;&gt;Intro&lt;/h2&gt;&#xA;&lt;p&gt;If you&amp;rsquo;re driving a car you&amp;rsquo;ve probably seen the &lt;a href=&#34;https://en.wikipedia.org/wiki/On-board_diagnostics&#34;&gt;On-Board Diagnostics port&lt;/a&gt; (OBD for short) under the steering wheel. That is a standardized interface for accessing the vehicle&amp;rsquo;s diagnostic information. It&amp;rsquo;s typically used by mechanics and diagnostic tools to retrieve data related to the engine, transmission, and other essential systems. They usually use some manufacturer-approved hardware. What makes it interesting is that we can read data from almost any major device in the vehicle and even control some of them. Let&amp;rsquo;s go a bit deeper.&lt;br&gt;&#xA;Here is pin-out of OBD-II port:&lt;/p&gt;</description>
     </item>
   </channel>

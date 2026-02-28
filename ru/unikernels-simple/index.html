@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru-ru"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <meta name="description" content="Purpose
+Unikernels are specialized, single-purpose operating systems designed to run directly on a hypervisor. They are compiled from high-level source code into a standalone kernel that includes only the necessary components to run a specific application.
+The main purpose of unikernels is to deploy applications more efficiently and securely, compared to traditional operating systems.
+They are sealed and immutable at compile-time, reducing the attack surface and preventing unauthorized modifications.
+And due to their specialized nature, unikernels often exhibit better performance for their specific tasks, eliminating unnecessary general-purpose OS overhead (there is no such thing as &ldquo;syscall&rdquo; at all).
+It doesn&rsquo;t have stuff that is not being used by application at runtime: like shell, mouse or floppy-disk driver (current Debian kernels still provide it, lol), etc.">  
+
+  <title>
+    
+      Уникернелы
+    
+  </title>
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/" />
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.900100e9dbee2d56c58fac8bb717037cae7e26a9c36c29d2ff587bdd65f0cbbe510b41d81a3bb234919cdfdc7550d786b2fab70c8fc507772d732fe097106d12.css" integrity="sha512-kAEA6dvuLVbFj6yLtxcDfK5&#43;JqnDbCnS/1h73WXwy75RC0HYGjuyNJGc39x1UNeGsvq3DI/FB3ctcy/glxBtEg==" />
+  
+  
+  <link rel="stylesheet" href="/css/custom.c8e1e56572d2f8834784c95261979120d7fa0ad620c99384652a97322238f5f3df327cfe6e7202f2aae7889077f7df104d752d3ec8512583c19a881059e58ab2.css" integrity="sha512-yOHlZXLS&#43;INHhMlSYZeRINf6CtYgyZOEZSqXMiI49fPfMnz&#43;bnIC8qrniJB3998QTXUtPshRJYPBmogQWeWKsg==" />
+  
+</head>
+<body a="auto">
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">&lt;--</a>
+
+
+<article>
+    <p class="post-meta">
+        <time datetime="2024-06-02 19:31:04 &#43;0200 CEST">
+            2024-06-02
+        </time>
+    </p>
+
+    <h1>Уникернелы</h1>
+
+    
+
+    <h2 id="purpose">Purpose</h2>
+<p>Unikernels are specialized, single-purpose operating systems designed to run directly on a <a href="https://en.wikipedia.org/wiki/Hypervisor">hypervisor</a>. They are compiled from high-level source code into a standalone kernel that includes only the necessary components to run a specific application.</p>
+<p>The main purpose of unikernels is to deploy applications more efficiently and securely, compared to traditional operating systems.<br>
+They are sealed and immutable at compile-time, reducing the attack surface and preventing unauthorized modifications.<br>
+And due to their specialized nature, unikernels often exhibit better performance for their specific tasks, eliminating unnecessary general-purpose OS overhead (there is no such thing as &ldquo;syscall&rdquo; at all).<br>
+It doesn&rsquo;t have stuff that is not being used by application at runtime: like shell, mouse or floppy-disk driver (current Debian kernels still provide it, lol), etc.</p>
+<p>Also, need to remember, that unikernels <em>usually not intended</em> to be run directly on bare-metal: it relies on the hypervisor to provide essential services like device drivers and memory management through consistent interface regardless of underlying hardware, and it needs specific <a href="https://en.wikipedia.org/wiki/Bootloader">bootloaders</a> (either hypervisor&rsquo;s one or own minimal bootloader) which initializes VM environment, sets up address space and allocates memory pages to prepare unikernel to be executed.</p>
+<p>You may ask: if unikernels are so awesome, why not everybody using them?<br>
+Let&rsquo;s first look at the following visualization of virtualization approaches:</p>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/unikernels/isolation-specialisation.png"/>
+</p>  
+<ul>
+<li>Containerization (e.g., Docker): Containers package applications and their dependencies in isolated environments that share the host OS kernel. Containers offer portability, quick startup times, and efficient resource utilization.</li>
+<li>Traditional Virtual Machines (VMs): VMs run full operating systems and provide strong isolation between applications. They are more heavyweight than unikernels but support a wide range of applications and legacy software.</li>
+<li>Unikernels: Unikernels compile applications and their necessary libraries into a single bootable image that runs directly on a hypervisor. They offer minimal resource consumption, fast boot times, and enhanced security, tailored for specific, single-purpose applications.</li>
+</ul>
+<p>There always should be a trade-off based on business needs and engineering complexity. Even though unikernels can consume very little resources, so it may be the cheapest option to serve, I think, that the cost of rewriting, establishing new way of delivery and supporting your software to be build as unikernel can cost significant amount of money. So unikernel in not a silver bullet.<br>
+But if performance and/or security is a key differentiator for your product, like it&rsquo;s game-server or a simple but high-load backend API - it make sense to try unikernels.</p>
+<p>One of the benefits could be the fact that with unikernels, startup/reload time could be the same order of magnitude of time to handle a request by you application - imagine 1-50ms total boot time! Examples could be: on-the-fly updates in realtime apps or serverless apps lifecycle management.</p>
+<p>And I think that in a couple years from now, unikernels can really catch up containers in popularity, especially for more high-load/high-secure applications.</p>
+<h2 id="how-it-works">How it works</h2>
+<p>Here is a nice picture showing software layers comparison, from one of the most well-known <a href="https://mort.io/publications/pdf/asplos13-unikernels.pdf">papers on unikernels</a>:</p>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/unikernels/software-layers.png"/>
+</p>  
+<p>As you see, in the regular VM setup, actual application binary split from the hypervisor with lots of abstraction layers. It&rsquo;s done on purpose, since having kernel/user space separation, processes, lots of hardware-specific libraries, etc. - gives us ability to run quite complex applications regardless the language runtime and resources usage. Imagine average ML application which runs python, needs lots of threads and RAM, GPUs, shared cpp libraries along side with rust ones managed through FFI and the whole web stack to host jupyter notebook ;)</p>
+<p>In case of unikernels, right on top of the hypervisor level (e.g. <a href="https://xenproject.org/">Xen</a>), goes the application itself, sealed with runtime (<a href="https://github.com/mirage/mirage">Mirage</a> in the case of paper).<br>
+Instead of a full OS, the unikernel directly compiles application code along with the necessary system libraries and drivers into a <em>single executable binary</em>. This includes:</p>
+<ul>
+<li>Application Source Code: The code for the specific application, written in a high-level language (e.g., <a href="https://en.wikipedia.org/wiki/OCaml">OCaml</a> in the MirageOS case).</li>
+<li>Configuration Files: Configuration parameters needed by the application, integrated directly into the binary at compile time.</li>
+<li>System Libraries and Drivers: Essential libraries and drivers that are linked with the application code.</li>
+</ul>
+<p>The end artifact after compilation would be the unikernel binary. Depending on the deployment environment it could be:</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Executable_and_Linkable_Format">ELF</a> (Executable and Linkable Format): it&rsquo;s a common binary format fro Unix operating systems, also being used for Xen hypervisor.</li>
+<li>Raw Binary: a straightforward sequence of machine instructions. Can be used with <a href="https://en.wikipedia.org/wiki/Kernel-based_Virtual_Machine">KVM</a>.</li>
+<li>Bootable Disk Images: Such as ISO or QCOW2, suitable for environments like KVM, which emulate hardware for running the unikernel.</li>
+<li><a href="https://en.wikipedia.org/wiki/Portable_Executable">PE</a> (Portable Executable): Used for Windows environments and compatible hypervisors like <a href="https://en.wikipedia.org/wiki/Hyper-V">Hyper-V</a>.</li>
+</ul>
+<p>After the compilation stage, the unikernel binary being loaded into hypervisor via bootloader. Usually, unikernels compiled in a way that they &ldquo;know&rdquo; about which hypervisor it will be run on - there is a special kind of virtualization used there, usually reffered as <a href="https://en.wikipedia.org/wiki/Paravirtualization">paravirtualization</a>. Such apps should be run with special bootloader, which itself is a PV kernel which behaves as a bootlaoder.</p>
+<h3 id="runtime">Runtime</h3>
+<p>Runtime is a specialized environment tailored for running on a hypervisor. It replaces the traditional OS kernel, providing essential services such as memory management, scheduling, and I/O operations. The unikernel integrates the language runtime (e.g., OCaml runtime for MirageOS) and necessary protocol libraries (e.g., TCP/IP stack, file systems) compiled directly with the application code.</p>
+<h3 id="memory">Memory</h3>
+<p>Unlike traditional OS with multiple address spaces, unikernels use a single address space, reducing context-switching overhead and improving performance.<br>
+Here is an example of typical memory layout in operating systems:</p>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/unikernels/memory-layout.png"/>
+</p>  
+<p>At this case, each process isolated from the others and the kernel with it&rsquo;s own virtual memory.<br>
+Instead, in unikernels, there is no such thing as &ldquo;process&rdquo; at all, as well as &ldquo;user/kernel space&rdquo;. Only a single address space, where all code and data share the same memory address range.</p>
+<h3 id="multithreading">Multithreading</h3>
+<p>In Mirage (as we&rsquo;re still referring to <a href="https://mort.io/publications/pdf/asplos13-unikernels.pdf">this paper</a>), since it&rsquo;s written in OCaml, threads are being managed by <a href="https://github.com/ocsigen/lwt?tab=readme-ov-file">lwt</a>. It implements <a href="https://en.wikipedia.org/wiki/Cooperative_multitasking#Cooperative_multitasking.2Ftime-sharing">cooperative multitasking</a>, with an option to create preemptive threads (it maintains a pool of system threads inside).<br>
+So it&rsquo;s basically depends on which kind of runtime is being used for the concrete unikernel implementation.</p>
+<h2 id="popular-unikernel-implementations">Popular unikernel implementations</h2>
+<h3 id="mirage-os">Mirage OS</h3>
+<p><a href="https://github.com/mirage/mirage">Mirage</a> I think is one of the first stable implementations of unikernels with a very nice paper (absolute worth reading). It produces unikernels by compiling and linking OCaml code into a bootable Xen VM image.<br>
+In case of Xen, it uses <a href="https://wiki.xenproject.org/wiki/PvGrub2">pv bootloader</a>, and <a href="https://github.com/Solo5/solo5">Solo5</a> for <a href="https://en.wikipedia.org/wiki/Kernel-based_Virtual_Machine">KVM</a>.</p>
+<p><a href="https://github.com/mirage/mirage-skeleton/tree/main">Here</a> you can find some examples of web-apps.<br>
+The downside is that it&rsquo;s all in OCaml and you have to implement your apps in OCaml as well. I really don&rsquo;t know people who are building anything in OCaml, but community is alive though ;)<br>
+In the paper, they provided nice analysis of the performance:</p>
+<ul>
+<li>Boot times against the size of bootable image:</li>
+</ul>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/unikernels/mirage-boot-time.png" />
+</p>  
+<ul>
+<li>Dynamic web performance - simulating simple twitter-like app (the plateau there means the task becomes CPU-bound):</li>
+</ul>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/unikernels/mirage-rps.png" />
+</p>  
+<p>As expected, unikernel approach has significant advantage in both startup time and amount of RPS handled by the web app.</p>
+<h3 id="hermit-os">Hermit OS</h3>
+<p><a href="https://github.com/hermit-os/kernel">Hermit</a> is another implementation of unikernels, initially started as <a href="https://github.com/hermit-os/libhermit">C project</a>, and now re-implemented in Rust.</p>
+<p>It&rsquo;s more flexible comparing to Mirage, since we now can implement apps in C/C++/Go/Fortran.<br>
+In case of Rust, they have <a href="https://github.com/hermit-os/hermit-rs">special crate</a>.<br>
+Hermit uses it&rsquo;s own <a href="https://github.com/hermit-os/loader">loader</a> to load in QEMU/KVM. Authors even implemented their own lightweight hypervisor <a href="https://github.com/hermit-os/uhyve">uhyve</a> (100% Rust).<br>
+That&rsquo;s pretty nice that developers basically can end-to-end rely on Hermit OS ecosystem and use Rust all the way.</p>
+<p>Authors also released a <a href="https://dl.acm.org/doi/pdf/10.1145/3365137.3365395">RustyHermit paper</a>, where they&rsquo;ve compared Linux, HermitCore and RustyHermit.<br>
+Here we can see software layers comparison between the regular Rust app and RustyHermit unikernel:</p>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/unikernels/rusty-hermit-stack.png" />
+</p>  
+Quite similar to what we observed earlier with Mirage example.  
+<p>And here is a quite interesting table showing difference of CPU cycles for certain small operations:</p>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/unikernels/rusty-hermit-cycles.png" />
+</p>  
+<p>The overhead of unikernels is clearly smaller because the system calls are mapped to common functions.<br>
+Rust wins in thread creation, but ~1300 cycles slower for page fault handling task (accessing unmapped memory page), which most probably caused by memory safety guarantees logic.</p>
+<h3 id="unicraft">Unicraft</h3>
+<p>The last example would be <a href="https://github.com/unikraft/unikraft">Unicraft</a>. It&rsquo;s implemented in C and supports C/C++/JS/Go/Python/Rust - check <a href="https://github.com/unikraft/catalog">examples catalog</a>.<br>
+They have very nice <a href="https://unikraft.org/docs/getting-started">docs</a> and a toolchain, where their <a href="https://unikraft.org/docs/cli/reference/kraftfile">kraft files</a> and <a href="https://unikraft.org/docs/cli">kraft</a> cli is very similar to docker from the user perspective.<br>
+One of the benefits also is that authors created unikernel <a href="https://unikraft.org/docs/cli/packaging#oci-based-packages">images packaging</a> system using the <a href="https://github.com/opencontainers/image-spec/blob/main/spec.md">OCI Image Specification</a>.<br>
+Here are some interesting performance numbers:</p>
+<ul>
+<li>Let&rsquo;s start from image size - it stays &lt; 2Mb for &ldquo;real&rdquo; apps, like redis or sqlite:</li>
+</ul>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/unikernels/unicraft-image-size.png" />
+</p>  
+<ul>
+<li>Boot times using various hypervisors:</li>
+</ul>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/unikernels/unicraft-boot.png" />
+</p>  
+<ul>
+<li>Simple web app throughput:</li>
+</ul>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/unikernels/unicraft-throughput.png" />
+</p>  
+<ul>
+<li>And a bit unexpected one - power consumption comparison (really cool though, may be useful for optimizing power/thermal efficiency for devices):</li>
+</ul>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/unikernels/unicraft-power-consumption.png" />
+</p>  
+<p>The common pattern we see in any implementation - your application still depend a lot how unikernel runtime component is implemented.<br>
+I think any of the above should work just nice if your application implements simple logic on network/disk, but not sure how easy it would be to adopt existing app with GPU/Special computing devices, which are quite common in ML world.</p>
+<p>From the developer point of view, unicraft seem to be the most production-ready, and could be integrated in real development flow with least risk. Regarding ML - they also are on the way of adopting tensor computing frameworks like TF and torch - so fingers crossed.</p>
+<h2 id="lets-run-rust-unikernel">Let&rsquo;s run Rust unikernel!</h2>
+<p>Finally, just for fun let&rsquo;s build Rust app unikernel via Hermit.<br>
+I&rsquo;ve used <a href="https://instances.vantage.sh/aws/ec2/m5zn.metal">m5zn.metal</a> machine for experiments, since it&rsquo;s possible to run type 1 hypervisor - it&rsquo;s a real bare-metal aws server.</p>
+<h3 id="install-dependencies">Install dependencies</h3>
+<p>Base:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sudo apt -y install build-essential
+</span></span></code></pre></div><p><a href="https://www.rust-lang.org/tools/install">Rust</a>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>curl --proto <span style="color:#e6db74">&#39;=https&#39;</span> --tlsv1.2 -sSf https://sh.rustup.rs | sh
+</span></span></code></pre></div><p>Then reload PATH:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>source <span style="color:#e6db74">&#34;</span>$HOME<span style="color:#e6db74">/.cargo/bin&#34;</span>
+</span></span></code></pre></div><p><a href="https://nasm.us/">NASM</a> assembler:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sudo apt update
+</span></span><span style="display:flex;"><span>sudo apt -y install nasm
+</span></span></code></pre></div><h4 id="qemu">QEMU</h4>
+<p>Check that CPU support virtualization:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>grep -E --color <span style="color:#e6db74">&#39;(vmx|svm)&#39;</span> /proc/cpuinfo
+</span></span></code></pre></div><p>If smth found - you&rsquo;re ready to go.</p>
+<p>After that check that KVM virtualization is supported by your OS:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sudo apt -y install cpu-checker
+</span></span><span style="display:flex;"><span>kvm-ok
+</span></span></code></pre></div><p>The output should look like that:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>INFO: /dev/kvm exists
+</span></span><span style="display:flex;"><span>KVM acceleration can be used
+</span></span></code></pre></div><p>Install qemu, finally:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>sudo apt -y install qemu qemu-kvm
+</span></span></code></pre></div><p>This command then should return the qemu and kvm versions:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>apt show qemu-system-x86
+</span></span><span style="display:flex;"><span>kvm -version
+</span></span></code></pre></div><h4 id="rust-bootloader">Rust bootloader</h4>
+<p>Clone rusty <a href="https://github.com/hermit-os/loader">loader</a>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>git clone https://github.com/hermit-os/loader.git
+</span></span></code></pre></div><p>And compile it:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cargo xtask build --target x86_64
+</span></span></code></pre></div><p><a href="https://github.com/hermit-os/loader/blob/d7c4cd33a7cfddb4f33783a5cff0dc2a230d1638/xtask/src/target.rs#L8-L12">Here</a> you can find flags for possible platforms.</p>
+<p>You should use the following route to loader when using qemu (compiled binary will be in <code>target/x86_64/</code>).<br>
+Optionally, copy the compiled executable to <code>/use/bin</code> to be able to call it from anywhere in the system.</p>
+<h3 id="build">Build</h3>
+<p>Let&rsquo;s build a simple http server, provided in <a href="https://github.com/hermit-os/hermit-rs/tree/main/examples/httpd">hermit-rs</a>.<br>
+You should first clone the project and go to the subfolder with <code>httpd</code> code.<br>
+And then build it:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>cargo build <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -Zbuild-std<span style="color:#f92672">=</span>std,panic_abort <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --target x86_64-unknown-hermit <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --release
+</span></span></code></pre></div><h3 id="run">Run</h3>
+<p>Run and test built unikernel providing compiled bootloader and app:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>qemu-system-x86_64 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -cpu qemu64,apic,fsgsbase,fxsr,rdrand,rdtscp,xsave,xsaveopt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -smp <span style="color:#ae81ff">1</span> -m 64M <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -device isa-debug-exit,iobase<span style="color:#f92672">=</span>0xf4,iosize<span style="color:#f92672">=</span>0x04 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -display none -serial stdio <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -kernel hermit-loader <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -initrd target/x86_64-unknown-hermit/debug/httpd
+</span></span></code></pre></div><p>Now just check the stdout ;)</p>
+<hr>
+
+</article>
+
+                
+    
+    
+        <!-- This is footer.
+You can edit this in ../nostyleplease/layouts/footer.md -->
+
+    
+
+
+            </div>
+        </main>
+    </body>
+</html>

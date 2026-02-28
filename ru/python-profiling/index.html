@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru-ru"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <meta name="description" content="There are quite some profiling tools for Python, like popular scalene. But I like python for simplicity and really like to use some &ldquo;default&rdquo; tools from the standard python toolchain - so cProfile is my choice.
+It doesn&rsquo;t require fine-grained code annotation and very simple to use.
+It shows stats on how much time is spent while executing certain functions. Really easy to work and interpret.
+Run
+For example, the following command will run profiling on each function that is being run inside the main.py and display the stats sorted by cumulative time:">  
+
+  <title>
+    
+      cProfile
+    
+  </title>
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/" />
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.900100e9dbee2d56c58fac8bb717037cae7e26a9c36c29d2ff587bdd65f0cbbe510b41d81a3bb234919cdfdc7550d786b2fab70c8fc507772d732fe097106d12.css" integrity="sha512-kAEA6dvuLVbFj6yLtxcDfK5&#43;JqnDbCnS/1h73WXwy75RC0HYGjuyNJGc39x1UNeGsvq3DI/FB3ctcy/glxBtEg==" />
+  
+  
+  <link rel="stylesheet" href="/css/custom.c8e1e56572d2f8834784c95261979120d7fa0ad620c99384652a97322238f5f3df327cfe6e7202f2aae7889077f7df104d752d3ec8512583c19a881059e58ab2.css" integrity="sha512-yOHlZXLS&#43;INHhMlSYZeRINf6CtYgyZOEZSqXMiI49fPfMnz&#43;bnIC8qrniJB3998QTXUtPshRJYPBmogQWeWKsg==" />
+  
+</head>
+<body a="auto">
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">&lt;--</a>
+
+
+<article>
+    <p class="post-meta">
+        <time datetime="2023-05-03 00:00:00 &#43;0000 UTC">
+            2023-05-03
+        </time>
+    </p>
+
+    <h1>cProfile</h1>
+
+    
+
+    <p>There are quite some profiling tools for Python, like popular <a href="https://github.com/plasma-umass/scalene">scalene</a>. But I like python for simplicity and really like to use some &ldquo;default&rdquo; tools from the standard python toolchain - so <a href="https://docs.python.org/3.8/library/profile.html">cProfile</a> is my choice.<br>
+It doesn&rsquo;t require fine-grained code annotation and very simple to use.<br>
+It shows stats on how much time is spent while executing certain functions. Really easy to work and interpret.</p>
+<h2 id="run">Run</h2>
+<p>For example, the following command will run profiling on each function that is being run inside the <code style="background-color: #808080;">main.py</code> and display the stats sorted by cumulative time:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>python -m cProfile -s cumulative -o main.prof main.py
+</span></span></code></pre></div><p>Or you can profile only certain function calls, changing your code like that:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> cProfile<span style="color:#f92672">,</span> pstats
+</span></span><span style="display:flex;"><span><span style="color:#f92672">...</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;__main__&#34;</span>:
+</span></span><span style="display:flex;"><span>    profiler <span style="color:#f92672">=</span> cProfile<span style="color:#f92672">.</span>Profile()
+</span></span><span style="display:flex;"><span>    profiler<span style="color:#f92672">.</span>enable()
+</span></span><span style="display:flex;"><span>    foo(inp)
+</span></span><span style="display:flex;"><span>    profiler<span style="color:#f92672">.</span>disable()
+</span></span><span style="display:flex;"><span>    stats <span style="color:#f92672">=</span> pstats<span style="color:#f92672">.</span>Stats(profiler)<span style="color:#f92672">.</span>sort_stats(<span style="color:#e6db74">&#39;cumtime&#39;</span>)
+</span></span><span style="display:flex;"><span>    stats<span style="color:#f92672">.</span>print_stats()
+</span></span><span style="display:flex;"><span>    stats<span style="color:#f92672">.</span>dump_stats(<span style="color:#e6db74">&#34;main.prof&#34;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">...</span>
+</span></span></code></pre></div><p>And then run:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>python main.py
+</span></span></code></pre></div><p>Here is the result example of the summary that will be printed out for torch <a href="https://huggingface.co/blog/stable_diffusion">StableDiffusion</a> model inference code:</p>
+<pre tabindex="0"><code>         592917 function calls (534423 primitive calls) in 12.643 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000   12.646   12.646 sd_prof.py:20(run)
+        1    0.000    0.000   12.646   12.646 .../torch/autograd/grad_mode.py:24(decorate_context)
+        1    0.005    0.005   12.646   12.646 .../diffusers/stable_diffusion/pipeline_stable_diffusion.py:408(__call__)
+       71    0.000    0.000    8.350    0.118 .../diffusers/schedulers/scheduling_pndm.py:192(step)
+       71    0.041    0.001    8.349    0.118 .../diffusers/schedulers/scheduling_pndm.py:278(step_plms)
+       71    8.302    0.117    8.307    0.117 .../diffusers/schedulers/scheduling_pndm.py:358(_get_prev_sample)
+ 47918/75    0.111    0.000    4.083    0.054 .../torch/nn/modules/module.py:1104(_call_impl)
+       71    0.010    0.000    4.033    0.057 .../diffusers/models/unet_2d_condition.py:337(forward)
+      213    0.007    0.000    2.811    0.013 .../diffusers/models/unet_2d_blocks.py:1528(forward)
+     1136    0.041    0.000    2.260    0.002 .../diffusers/models/attention.py:178(forward)
+     1136    0.160    0.000    1.782    0.002 .../diffusers/models/attention.py:479(forward)
+     1576    0.176    0.000    1.530    0.001 .../diffusers/models/resnet.py:454(forward)
+     2272    0.054    0.000    1.215    0.001 .../diffusers/models/attention.py:592(forward)
+    15616    0.027    0.000    0.970    0.000 .../torch/nn/modules/linear.py:102(forward)
+</code></pre><p>To visualize the result, you can use <a href="https://github.com/jrfonseca/gprof2dot">gprof2dot</a>, which will draw the execution graph.</p>
+<p>First, install graphviz:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>apt-get install graphviz
+</span></span></code></pre></div><p>or</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>yum install graphviz
+</span></span></code></pre></div><p>Then, you install gprof2dot via pypi:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>pip install gprof2dot
+</span></span></code></pre></div><p>And finally, you can generate the graph, using profile file generate by <code style="background-color: #808080;">cProfile</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>gprof2dot -f pstats main.prof | dot -Tpng -o output.png
+</span></span></code></pre></div><p>The example result looks like this:</p>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/python-profiling-static/gprof2dot.png"/>
+</p>  
+<p>Percentages on the picture represent <em>total</em> time spent in the function and all it&rsquo;s parents and <em>self</em> time spent in the function itself. See the short and clear explanation of how to interpret these boxes on the project’s <a href="https://github.com/jrfonseca/gprof2dot#output">github page</a>.</p>
+<h2 id="results-review">Results review</h2>
+<p>Using the text and graph outputs for Stable Diffusion model from above, we can give a short summary:</p>
+<ul>
+<li>(the obvious one) less reconstruction iterations - the faster ;)</li>
+<li>apparently, ~2/3rd of the time is spent in the &ldquo;scheduler&rdquo; inside this <a href="https://github.com/huggingface/diffusers/blob/v0.11.1/src/diffusers/schedulers/scheduling_pndm.py#L358">get_prev_sample</a> function, which has a lot of matrix multiplications and taking square roots</li>
+<li>most of the rest of the time - is under Unet (which makes sense it&rsquo;s the core part). And looks like a lot of stuff is happening inside the attention block&rsquo;s forward pass.</li>
+<li>a bit misleading thing is that most of operations in torch goes through <code style="background-color: #808080;">torch.nn.module</code> class, so that&rsquo;s ok when lots of calls are there.</li>
+</ul>
+<p>It makes sense to start optimization from applying, let&rsquo;s say, <a href="https://arxiv.org/pdf/2205.14135.pdf">flash attention</a>, since big amount of time was spent on running Unet&rsquo;s with attention layers.</p>
+<hr>
+
+</article>
+
+                
+    
+    
+        <!-- This is footer.
+You can edit this in ../nostyleplease/layouts/footer.md -->
+
+    
+
+
+            </div>
+        </main>
+    </body>
+</html>

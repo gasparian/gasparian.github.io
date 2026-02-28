@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru-ru"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <meta name="description" content="Intro
+If you&rsquo;re driving a car you&rsquo;ve probably seen the On-Board Diagnostics port (OBD for short) under the steering wheel. That is a standardized interface for accessing the vehicle&rsquo;s diagnostic information. It&rsquo;s typically used by mechanics and diagnostic tools to retrieve data related to the engine, transmission, and other essential systems. They usually use some manufacturer-approved hardware. What makes it interesting is that we can read data from almost any major device in the vehicle and even control some of them. Let&rsquo;s go a bit deeper.
+Here is pin-out of OBD-II port:">  
+
+  <title>
+    
+      Безобидный взлом автомобиля
+    
+  </title>
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/" />
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.900100e9dbee2d56c58fac8bb717037cae7e26a9c36c29d2ff587bdd65f0cbbe510b41d81a3bb234919cdfdc7550d786b2fab70c8fc507772d732fe097106d12.css" integrity="sha512-kAEA6dvuLVbFj6yLtxcDfK5&#43;JqnDbCnS/1h73WXwy75RC0HYGjuyNJGc39x1UNeGsvq3DI/FB3ctcy/glxBtEg==" />
+  
+  
+  <link rel="stylesheet" href="/css/custom.c8e1e56572d2f8834784c95261979120d7fa0ad620c99384652a97322238f5f3df327cfe6e7202f2aae7889077f7df104d752d3ec8512583c19a881059e58ab2.css" integrity="sha512-yOHlZXLS&#43;INHhMlSYZeRINf6CtYgyZOEZSqXMiI49fPfMnz&#43;bnIC8qrniJB3998QTXUtPshRJYPBmogQWeWKsg==" />
+  
+</head>
+<body a="auto">
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">&lt;--</a>
+
+
+<article>
+    <p class="post-meta">
+        <time datetime="2020-04-14 00:00:00 &#43;0000 UTC">
+            2020-04-14
+        </time>
+    </p>
+
+    <h1>Безобидный взлом автомобиля</h1>
+
+    
+
+    <h2 id="intro">Intro</h2>
+<p>If you&rsquo;re driving a car you&rsquo;ve probably seen the <a href="https://en.wikipedia.org/wiki/On-board_diagnostics">On-Board Diagnostics port</a> (OBD for short) under the steering wheel. That is a standardized interface for accessing the vehicle&rsquo;s diagnostic information. It&rsquo;s typically used by mechanics and diagnostic tools to retrieve data related to the engine, transmission, and other essential systems. They usually use some manufacturer-approved hardware. What makes it interesting is that we can read data from almost any major device in the vehicle and even control some of them. Let&rsquo;s go a bit deeper.<br>
+Here is pin-out of OBD-II port:</p>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/car-hack/obdII.png" style="background-color: #ffffff" /> 
+</p>  
+<p>As you see, we have here two pins (6 and 14) for the differential <a href="https://www.csselectronics.com/pages/can-bus-simple-intro-tutorial">CAN interface</a>. It’s a bus, where any device (ECU - &ldquo;electronic control units&rdquo;) can send a message to all others. It&rsquo;s particularly well-suited for real-time applications and is designed to operate in noisy electrical environments typical in vehicles. That thing is exactly what we need.<br>
+Btw, companies developing <a href="https://en.wikipedia.org/wiki/Advanced_driver-assistance_system">ADAS</a> systems like <a href="https://www.comma.ai/">comma.ai</a> are <a href="https://blog.comma.ai/how-does-openpilot-work/">using</a> OBD&rsquo;s CAN and some other CAN buses to talk to vehicle&rsquo;s devices and control it. There is a whole <a href="https://github.com/commaai/opendbc">open-source movement</a> ran by them to reverse-engineer CAN messages for different cars and create <a href="http://socialledge.com/sjsu/index.php/DBC_Format">DBC</a> files that are used to run their <a href="https://www.comma.ai/openpilot">openpilot</a>.<br>
+Keep in mind, that for some real-time application it makes more sense to connect to the vehicle CAN bus directly, without using OBD port or any similar thing.</p>
+<h2 id="obd-communication-101">OBD communication 101</h2>
+<p><em>based on <a href="https://gist.github.com/gasparian/d8c24743e0e2527e2c1c3090a1bcf9df">this cheat-sheet</a></em></p>
+<h3 id="check-the-device-connection-usb-wire-at-my-case">Check the device connection (USB wire at my case)</h3>
+<p>After connecting the device, you can check messages produced by the device driver in the kernel ring buffer:</p>
+<pre tabindex="0"><code>dmesg
+</code></pre><pre tabindex="0"><code>[ 8603.743057] CAN device driver interface
+[ 8603.748745] peak_usb 3-2:1.0: PEAK-System PCAN-USB adapter hwrev 28 serial
+    FFFFFFFF (1 channel)
+[ 8603.749554] peak_usb 3-2:1.0 can0: attached to PCAN-USB channel 0 (device
+    255)
+[ 8603.749664] usbcore: registered new interface driver peak_usb
+</code></pre><h3 id="using-elm327-devices">Using <a href="https://www.elmelectronics.com/obdic.html#ELM327">ELM327</a> devices</h3>
+<p>That&rsquo;s basically a microcontroller which converts signals from a vehicle&rsquo;s OBD-II port into the <a href="https://en.wikipedia.org/wiki/RS-232">RS232</a> serial interface and in the end provides the USB interface, which makes it easy to read/write signals with your regular PC.</p>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/car-hack/elm-327-2.jpg" style="background-color: #ffffff"/> 
+</p>
+<p>This is the cheapest solution to get some data from your vehicle&rsquo;s ECUs.<br>
+The communication based on queries, which must be sent from &ldquo;client&rdquo; (your PC at this case) side to <code style="background-color: #808080;">elm327</code> controller. Also this thing is slow. But it widely used, for example, to read status and identify errors from different devices in the car.<br>
+In order to get a &ldquo;pure&rdquo; CAN signals and be able to control the devices in your car - it&rsquo;s better to get more expensive USB-&gt;CAN devices.<br>
+Anyway, install <a href="https://www.gnu.org/software/screen/manual/screen.html">screen</a> and enter the tty device session with a standart baud rate:</p>
+<pre tabindex="0"><code>sudo apt install screen
+</code></pre><pre tabindex="0"><code>sudo screen -L /dev/ttyUSB0 38400
+</code></pre><p>Log file will be created at the current workdir.</p>
+<p>And then you&rsquo;re ready to send commands to the <code style="background-color: #808080;">elm327</code>, like this:</p>
+<pre tabindex="0"><code>atz
+// or
+01 &lt;PID&gt;
+</code></pre><p>See the <a href="https://en.wikipedia.org/wiki/OBD-II_PIDs">Service 01</a> section for all needed PID codes and returned bytes decoding.<br>
+For example, here are queries for the engine RPM, vehicle speed and transmission actual gear:</p>
+<pre tabindex="0"><code>01 0C
+01 0D
+01 A4
+</code></pre><p>In case of RPM, we get two bytes, which must be converted as: <code style="background-color: #808080;">(256*A + B) / 4</code> (A and B - decimals).<br>
+Speed encodes with one byte hex value, the decimal result will be in range 0&hellip;255, in km\h.<br>
+You can also get access to the CAN using the same PIDs, see the wiki article above for more info.<br>
+Remember, that the device version (from <code style="background-color: #808080;">atz</code> output) matters, since your <code style="background-color: #808080;">elm327</code> may not support some communication protocols (another words - not all the cars and <code style="background-color: #808080;">elm327</code> devices are compatible).<br>
+From pratice, it&rsquo;s better to have v1.5 elm.</p>
+<h4 id="example-obd-pids-skoda-octavia-a5-2011-actual-obd-pids">(Example OBD PIDs) Skoda Octavia A5 2011 actual OBD PIDs</h4>
+<p>Supported protocol: <code style="background-color: #808080;">ISO 14230-4 (KWP 5BAUD)</code>.<br>
+Default ECU - engine (id#10 in the headers).<br>
+Here are some PIDs supported by tested car:</p>
+<pre tabindex="0"><code>{
+    &#39;03&#39;: &#39;Fuel system status&#39;,
+    &#39;04&#39;: &#39;Calculated engine load&#39;,
+    &#39;05&#39;: &#39;Engine coolant temperature&#39;,
+    &#39;06&#39;: &#39;Short term fuel trim—Bank 1&#39;,
+    &#39;07&#39;: &#39;Long term fuel trim—Bank 1&#39;,
+    &#39;0B&#39;: &#39;Intake manifold absolute pressure&#39;,
+    &#39;0C&#39;: &#39;Engine RPM&#39;,
+    &#39;0D&#39;: &#39;Vehicle speed&#39;,
+    &#39;0E&#39;: &#39;Timing advance&#39;,
+    &#39;0F&#39;: &#39;Intake air temperature&#39;,
+    &#39;11&#39;: &#39;Throttle position&#39;,
+    &#39;12&#39;: &#39;Commanded secondary air status&#39;,
+    &#39;13&#39;: &#39;Oxygen sensors present (in 2 banks)&#39;,
+    &#39;15&#39;: &#39;Oxygen Sensor 2 A: Voltage B: Short term fuel trim&#39;,
+    &#39;1C&#39;: &#39;OBD standards this vehicle conforms to&#39;,
+    &#39;20&#39;: &#39;PIDs supported [21 - 40]&#39;,
+}
+</code></pre><h3 id="using-can2usb-devices">Using CAN2USB devices</h3>
+<p>Such device is the best option for &ldquo;car hackers&rdquo;, since it gives direct access to the OBD-CAN bus on a high speed. I&rsquo;ve put more info on that <a href="https://gist.github.com/gasparian/d8c24743e0e2527e2c1c3090a1bcf9df">here</a> in the cheat-sheet.</p>
+<h2 id="read-the-vehicle-speed-with-the-elm327-and-plain-c">Read the vehicle speed with the elm327 and plain C</h2>
+<p>So let&rsquo;s say that the goal is to log a vehicle speed from the speedometer, using a linux computer, <code style="background-color: #808080;">elm327</code> controller and a standardized OBD API.<br>
+The speed is usually encoded with two-digit hexadecimal number and can vary in range 0&hellip;255 km\h.</p>
+<h3 id="configuring-a-virtual-com-port">Configuring a virtual COM-port</h3>
+<p>Here are some basic serial port parameters for <code style="background-color: #808080;">elm327</code> devices:</p>
+<ul>
+<li>Baudrate - 38400;</li>
+<li>8 data bits;</li>
+<li>Stop bits - 1;</li>
+<li>No Parity;</li>
+</ul>
+<p>Selecting the Serial port Number on Linux:</p>
+<ul>
+<li><code style="background-color: #808080;">/dev/ttyUSBx</code> - when using USB to Serial Converter, where x can be 0,1,2&hellip;etc;</li>
+<li><code style="background-color: #808080;">/dev/ttySx</code> - for PC hardware based Serial ports, where x can be 0,1,2&hellip;etc;<br>
+Remember, that in Linux, everything is a file - so you can apply standard read/write operations on <code style="background-color: #808080;">/dev/tty*</code>.</li>
+</ul>
+<p>For quick tests, I&rsquo;ve used <code style="background-color: #808080;">screen</code>:</p>
+<pre tabindex="0"><code>sudo screen -L /dev/ttyUSB0 38400,cs8
+</code></pre><p>After finishing the <code style="background-color: #808080;">screen</code> session, the serial port &ldquo;saves&rdquo; the last configuration, so it becomes really useful for debugging. To get the last serial port configs for particular device, just run <code style="background-color: #808080;">stty</code>:</p>
+<pre tabindex="0"><code>sudo stty -F /dev/ttyUSB0 -a
+</code></pre><h3 id="communicating-with-vehicle-through-elm327">Communicating with vehicle through elm327</h3>
+<p>For the experiment, I&rsquo;ve wrote a <strong><a href="https://github.com/gasparian/obd_elm327_vehicle_speed/tree/98acca6d91a070efe641b295d1980bfb5256ebec/src">simple program</a></strong> to read vehicle speed and log it to stdout (my apologies, C programmers ;^)).</p>
+<p>Here is the pipeline (look to the <code style="background-color: #808080;">elm_main.c</code> file and helper functions in <code style="background-color: #808080;">obd_helpers.h</code>):</p>
+<ul>
+<li>open serial port file:
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">int</span> fd; <span style="color:#75715e">/*File Descriptor*/</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>device_name <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;/dev/ttyUSB0&#34;</span>;
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">get_port</span>(<span style="color:#f92672">&amp;</span>fd, <span style="color:#f92672">&amp;</span>device_name); 
+</span></span></code></pre></div></li>
+<li>setting up serial port with <a href="https://man.archlinux.org/man/termios.h.0p">termios</a>:
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">size_t</span> vmin <span style="color:#f92672">=</span> <span style="color:#ae81ff">18</span>; <span style="color:#75715e">// minimum number of characters for noncanonical read
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">size_t</span> vtime <span style="color:#f92672">=</span> <span style="color:#ae81ff">2</span>; <span style="color:#75715e">// blocking read time in deciseconds
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">serial_setup</span>(<span style="color:#f92672">&amp;</span>fd, vmin, vtime);
+</span></span></code></pre></div></li>
+<li>configure buffer size and turn-off spaces in response from the elm:
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">size_t</span> buff_size <span style="color:#f92672">=</span> <span style="color:#ae81ff">21</span>; <span style="color:#75715e">// nbytes
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#a6e22e">set_elm</span>(<span style="color:#f92672">&amp;</span>fd, SET_NO_SPACES, buff_size);
+</span></span></code></pre></div></li>
+<li>and then run the loop that sends a command to elm and waits for the answer:
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c" data-lang="c"><span style="display:flex;"><span><span style="color:#66d9ef">char</span> <span style="color:#f92672">*</span>answer <span style="color:#f92672">=</span> <span style="color:#a6e22e">malloc</span>(buff_size);
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">printf</span>(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">id,wtime,rtime,dt,bytes_read,data</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">while</span> (<span style="color:#f92672">++</span>iter) {
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// clean the buff array
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#a6e22e">bzero</span>(answer, buff_size);
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// ask elm for the speed and read result
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    tsw <span style="color:#f92672">=</span> <span style="color:#a6e22e">get_time</span>();
+</span></span><span style="display:flex;"><span>    bytes_read <span style="color:#f92672">=</span> <span style="color:#a6e22e">elm_talk</span>(<span style="color:#f92672">&amp;</span>fd, answer, buff_size, PID_SPEED, <span style="color:#ae81ff">0</span>);
+</span></span><span style="display:flex;"><span>    tsr <span style="color:#f92672">=</span> <span style="color:#a6e22e">get_time</span>();
+</span></span><span style="display:flex;"><span>    dt <span style="color:#f92672">=</span> tsr <span style="color:#f92672">-</span> tsw;
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// check that returned answer is really speed
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">int</span> check <span style="color:#f92672">=</span> <span style="color:#a6e22e">answer_check</span>(answer, <span style="color:#e6db74">&#34;410D&#34;</span>, <span style="color:#ae81ff">4</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> ( (bytes_read <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>) <span style="color:#f92672">&amp;&amp;</span> check ) {
+</span></span><span style="display:flex;"><span>        speed <span style="color:#f92672">=</span> <span style="color:#a6e22e">get_vehicle_speed</span>(answer);
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">printf</span>(msg_speed, iter<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>, tsw, tsr, dt, bytes_read, speed);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div></li>
+</ul>
+<p>Compile:</p>
+<pre tabindex="0"><code>gcc -o elm_main elm_main.c
+</code></pre><p>Run, passing the needed device name:</p>
+<pre tabindex="0"><code>sudo ./elm_main /dev/ttyUSB0
+</code></pre><p>Or run with <code style="background-color: #808080;">debug</code> flag to test the connection to the ELM device without a car:</p>
+<pre tabindex="0"><code>sudo ./elm_main /dev/ttyUSB0 debug
+</code></pre><p>The output of the main script is csv-like formatted and contains timestamps in microseconds, so it&rsquo;s convenient to dump it to file and analyze later:</p>
+<pre tabindex="0"><code>sudo ./elm_main /dev/ttyUSB0 &gt; /tmp/elm_speed.csv 2&gt;&amp;1
+</code></pre><p>To monitor the logfile while writing:</p>
+<pre tabindex="0"><code>tail -f /tmp/elm_speed.csv
+</code></pre><p>After reading the captured log file we can draw a graph of vehicle&rsquo;s speed change over time:</p>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/car-hack/speed_test_3.png" style="background-color: #ffffff"/> 
+</p>
+<p>voilà</p>
+<p>You can do the same trick with any ECU you can find PID for and use that data for your research!</p>
+<hr>
+
+</article>
+
+                
+    
+    
+        <!-- This is footer.
+You can edit this in ../nostyleplease/layouts/footer.md -->
+
+    
+
+
+            </div>
+        </main>
+    </body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ru-ru"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <meta name="description" content="What
+ML development relies a lot on large computation frameworks like torch / tensorflow and wrappers on top of them and we became kind of locked on Python ecosystem. So we got used to deploy python to production.
+For the virtualization, we usually use containers.
+It all comes with the cost of bringing lots of dependencies to our application containers, which leads to huge image sizes and lots of security issues (literally thousands, if you don&rsquo;t update python version/libs versions too often).
+The question is - can we somehow bring only needed pieces of our software stack to prod to reduce the size and increase security of our application?">  
+
+  <title>
+    
+      Distroless
+    
+  </title>
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/" />
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.900100e9dbee2d56c58fac8bb717037cae7e26a9c36c29d2ff587bdd65f0cbbe510b41d81a3bb234919cdfdc7550d786b2fab70c8fc507772d732fe097106d12.css" integrity="sha512-kAEA6dvuLVbFj6yLtxcDfK5&#43;JqnDbCnS/1h73WXwy75RC0HYGjuyNJGc39x1UNeGsvq3DI/FB3ctcy/glxBtEg==" />
+  
+  
+  <link rel="stylesheet" href="/css/custom.c8e1e56572d2f8834784c95261979120d7fa0ad620c99384652a97322238f5f3df327cfe6e7202f2aae7889077f7df104d752d3ec8512583c19a881059e58ab2.css" integrity="sha512-yOHlZXLS&#43;INHhMlSYZeRINf6CtYgyZOEZSqXMiI49fPfMnz&#43;bnIC8qrniJB3998QTXUtPshRJYPBmogQWeWKsg==" />
+  
+</head>
+<body a="auto">
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">&lt;--</a>
+
+
+<article>
+    <p class="post-meta">
+        <time datetime="2024-03-24 19:42:52 &#43;0100 CET">
+            2024-03-24
+        </time>
+    </p>
+
+    <h1>Distroless</h1>
+
+    
+
+    <h2 id="what">What</h2>
+<p>ML development relies a lot on large computation frameworks like <code>torch / tensorflow</code> and wrappers on top of them and we became kind of locked on Python ecosystem. So we got used to deploy python to production.<br>
+For the virtualization, we usually use containers.<br>
+It all comes with the cost of bringing lots of dependencies to our application containers, which leads to huge image sizes and lots of security issues (literally thousands, if you don&rsquo;t update python version/libs versions too often).<br>
+The question is - can we somehow bring only needed pieces of our software stack to prod to reduce the size and increase security of our application?</p>
+<h2 id="how">How</h2>
+<p>The basic idea is to deploy only what&rsquo;s used at application runtime.<br>
+And we have multiple choices, including:</p>
+<ul>
+<li>stay with containers and try to create minimalistic image: multi-stage build with minimal-possible final stage;</li>
+<li>go into something more low-level, like <a href="https://en.wikipedia.org/wiki/Unikernel">unikernels</a> (but let&rsquo;s cover it separately);</li>
+</ul>
+<p>Let&rsquo;s explore the first approach in more detail.</p>
+<h3 id="bring-only-libraries-that-app-uses">Bring only libraries that app uses</h3>
+<p>Python libs rely on the compiled shared libraries, part of them stored in wheels that you downloaded from pypi, but part - should be placed in the common linux directory like <code>/usr/lib/x86_64-linux-gnu/</code>.</p>
+<p>To solve most part of security issues, it&rsquo;s usually enough to update the dependencies. The only problem could be with “core” ML dependencies like <code>tensorflow</code> or <code>torch</code> which we usually use for inference - we need to update them carefully since prediction results could become slightly different from version to version.</p>
+<p>For example, here are some of the shared libs that needed to run <code>gunicorn</code> web-server (a default one for python web apps):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/usr/lib/x86_64-linux-gnu/libcrypto.so.1.1
+</span></span><span style="display:flex;"><span>/usr/lib/x86_64-linux-gnu/libffi.so.7
+</span></span><span style="display:flex;"><span>/usr/lib/x86_64-linux-gnu/libffi.so.7.1.0
+</span></span><span style="display:flex;"><span>/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0
+</span></span><span style="display:flex;"><span>/usr/lib/x86_64-linux-gnu/libglib-2.0.so.0.6400.6
+</span></span><span style="display:flex;"><span>/usr/lib/x86_64-linux-gnu/libgthread-2.0.so.0
+</span></span><span style="display:flex;"><span>/usr/lib/x86_64-linux-gnu/libgthread-2.0.so.0.6400.6
+</span></span><span style="display:flex;"><span>/usr/lib/x86_64-linux-gnu/libssl.so.1.1
+</span></span></code></pre></div><h3 id="split-the-container-image-assembly-into-two-stages">Split the container image assembly into two stages</h3>
+<p>So we can adopt approach widely used with compiled languages:</p>
+<ul>
+<li><strong>“build“</strong>: get some “regular” base image with lots of libraries → install project dependencies (examples: <a href="https://hub.docker.com/layers/library/python/slim/images/sha256-815f9e7b04768469d7c1346adaaa9f7b1853b28a870e23c82ae18bd08777ff1d?context=explore">python-slim</a>, <a href="https://hub.docker.com/r/nvidia/cuda/tags?page=1&amp;name=cudnn8-devel-ubuntu20.04">cuda-ubuntu</a>)</li>
+<li>&mdash; analyse which libs python app is using at runtime &mdash;</li>
+<li><strong>“runtime“</strong>: starting from a very “thin“ image (examples: <a href="https://hub.docker.com/_/alpine">alpine</a>, <a href="https://github.com/GoogleContainerTools/distroless">distroless</a>) copy needed files from the first stage. Ideally it could be just <a href="https://hub.docker.com/_/scratch/">scratch</a>, if we could easily statically compile our apps ;)</li>
+</ul>
+<h2 id="implementation">Implementation</h2>
+<p>Create Dockerfile as usual, for example like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span><span style="color:#e6db74"> python:3.9.2-slim as py</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">ARG</span> DEBIAN_FRONTEND<span style="color:#f92672">=</span>noninteractive
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">RUN</span> apt-get clean <span style="color:#f92672">&amp;&amp;</span> apt-get update <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    apt-get -y install --no-install-recommends <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        build-essential <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        libev-dev <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        ca-certificates <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        software-properties-common <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        openssh-client <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        strace <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>        <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    rm -rf /var/lib/apt/lists/*<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> requirements.txt /app/requirements.txt<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">WORKDIR</span><span style="color:#e6db74"> /app</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> pip install -U pip <span style="color:#f92672">&amp;&amp;</span> python3 -m pip install -r requirements.txt<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> apt-get update <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    <span style="color:#f92672">&amp;&amp;</span> apt-get purge -y <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>       build-essential <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    <span style="color:#f92672">&amp;&amp;</span> apt-get clean <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    <span style="color:#f92672">&amp;&amp;</span> apt-get autoremove -y <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    <span style="color:#f92672">&amp;&amp;</span> rm -rf /var/lib/apt/lists/* /tmp/* /var/cache/apt/*<span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><h3 id="determine-which-shared-libs-need-to-be-picked">Determine which shared libs need to be picked</h3>
+<p>The idea is to run application inside a container and track which <code>fopen</code> (and similar) sys-calls the app process uses. So we can find all the shared libs that the process really need to operate. Here is what you need to do:</p>
+<ul>
+<li>build the container with all needed dependencies (w/o adding second stage yet). Don&rsquo;t forget to install <code>strace</code></li>
+<li>run container with the shared volume to keep trace files on the host machine:
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run --rm -it <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --name<span style="color:#f92672">=</span>&lt;service-name&gt; <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    -v /tmp/traces:/traces <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    --entrypoint /bin/sh <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    &lt;service-name&gt;:latest
+</span></span></code></pre></div></li>
+<li>go to the running container’s shell and collect trace log of the running app:
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>strace -fe trace<span style="color:#f92672">=</span>open,openat,name_to_handle_at -o /traces/run.trace ./serve.sh
+</span></span></code></pre></div></li>
+</ul>
+<p>After logs has been collected - let’s get only those libs which relates to the needed OS deps.<br>
+Create the script, let&rsquo;s call it <code>trace_analyze.sh</code> (change grep patterns to include/exclude paths depending on your needs):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e">#!/bin/bash
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Apps needed to run that script:</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#     echo, grep, cat, sort, uniq</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Check if at least one filename is provided</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> <span style="color:#e6db74">&#34;</span>$#<span style="color:#e6db74">&#34;</span> -lt <span style="color:#ae81ff">1</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;Usage: </span>$0<span style="color:#e6db74"> &lt;file1&gt; [&lt;file2&gt; ...]&#34;</span>
+</span></span><span style="display:flex;"><span>    exit <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>GREP_CMD<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;grep&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[[</span> <span style="color:#66d9ef">$(</span>uname -s<span style="color:#66d9ef">)</span> <span style="color:#f92672">==</span> *Darwin* <span style="color:#f92672">]]</span>; <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>    GREP_CMD<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;ggrep&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Concatenate the content of the specified files</span>
+</span></span><span style="display:flex;"><span>concatenated_content<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>cat <span style="color:#e6db74">&#34;</span>$@<span style="color:#e6db74">&#34;</span><span style="color:#66d9ef">)</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#34;</span>$concatenated_content<span style="color:#e6db74">&#34;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    | $GREP_CMD -E <span style="color:#e6db74">&#39;/lib/x86_64-linux-gnu/|/usr/lib/x86_64-linux-gnu/|/usr/local/cuda/lib64/&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    | $GREP_CMD -v -E <span style="color:#e6db74">&#39;/usr/local/lib/python|opencv_python|etc|libJitPI|.cache|python3[^/]+\.so|/lib/x86_64-linux-gnu/tls/|/usr/lib/x86_64-linux-gnu/tls/|libittnotify.so|/glibc-hwcaps/&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    | $GREP_CMD -oP <span style="color:#e6db74">&#39;(?&lt;=&#34;).*?(?=&#34;)&#39;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    | sort | uniq
+</span></span></code></pre></div><p>And run it against the collected file with traces:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>./trace_analyze.sh /tmp/traces/*.trace &gt; trace_filtered.txt
+</span></span></code></pre></div><p>You will get the list of libs in the following format:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/lib/x86_64-linux-gnu/libbz2.so.1.0.4
+</span></span><span style="display:flex;"><span>/lib/x86_64-linux-gnu/libz.so
+</span></span><span style="display:flex;"><span>/usr/lib/x86_64-linux-gnu/libGL.so.1
+</span></span><span style="display:flex;"><span>/usr/lib/x86_64-linux-gnu/libc.so.6 // &lt;-- drop
+</span></span><span style="display:flex;"><span>/usr/lib/x86_64-linux-gnu/libGLX.so.0
+</span></span><span style="display:flex;"><span>/usr/lib/x86_64-linux-gnu/libGLdispatch.so.0
+</span></span><span style="display:flex;"><span>...
+</span></span></code></pre></div><p>You need to drop some core os dependencies that could lead to errors at runtime, like <code>libc</code>, <code>pthread</code>, etc.<br>
+Save the resulting list of libs somewhere.</p>
+<h3 id="distroless-as-a-second-stage">Distroless as a second stage</h3>
+<p>We can continue with using <a href="https://github.com/GoogleContainerTools/distroless">python-distroless</a> for the second stage. It’s a way to deploy very minimalistic containers dropping a lot of unnecessary code from OS. It’s well-adopted by tech giants like Google, Facebook, etc. It has a benefit of being one of the smallest possible choices with pre-installed fully-fledged python interpreter.</p>
+<p>So your Dockerfile could look like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span>...<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># Create group and user for app runtime</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> groupadd -g <span style="color:#ae81ff">1001</span> -r app <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    useradd -u <span style="color:#ae81ff">1001</span> -r -d /app -g app app<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># Save `app` user data separately, it will always be the last row</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">RUN</span> tail -n <span style="color:#ae81ff">1</span> /etc/passwd &gt; /passwd <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    tail -n <span style="color:#ae81ff">1</span> /etc/group &gt; /group <span style="color:#f92672">&amp;&amp;</span> <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    tail -n <span style="color:#ae81ff">1</span> /etc/gshadow &gt; /gshadow <span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># Python 3.9</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">FROM</span><span style="color:#e6db74"> artifactory.tools.devrtb.com/docker-virtual/distroless/python3-debian11-zlib1g1-3:1.0.0</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># python packages</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --from<span style="color:#f92672">=</span>py /usr/local/lib/python3.9/site-packages /site-packages<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">ENV</span> PYTHONPATH<span style="color:#f92672">=</span>/site-packages<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">ENV</span> LANG C.UTF-8<span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>Copy executables needed to run app/tests:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span>...<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --from<span style="color:#f92672">=</span>py <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/local/bin/gunicorn <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/bin/<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># system level shared libs</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --from<span style="color:#f92672">=</span>py <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /lib/x86_64-linux-gnu/libpcre.so.3 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /lib/x86_64-linux-gnu/<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --from<span style="color:#f92672">=</span>py <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libwebp.so.6.0.2 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libwebp.so.6 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libwebpmux.so.3.0.1 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libwebpmux.so.3 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libGL.so.1 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libGLX.so.0 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libGLdispatch.so.0 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libX11.so.6 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libXau.so.6 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libXdmcp.so.6 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libXext.so.6 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libbsd.so.0 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libcrypto.so.1.1 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libffi.so.6 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libglib-2.0.so.0 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libgthread-2.0.so.0 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libssl.so.1.1 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libstdc++.so.6 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/libxcb.so.1 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /usr/lib/x86_64-linux-gnu/<span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>Copy user credentials and files, specifying the owner (app in this case):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span>...<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#75715e"># copy `app` user credentials</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --from<span style="color:#f92672">=</span>py <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /passwd <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /group <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /gshadow <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    /etc/<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">COPY</span> --chown<span style="color:#f92672">=</span>app:app --chmod<span style="color:#f92672">=</span><span style="color:#ae81ff">744</span> . /app/service<span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>Finally, you need to specify env variables and define the entrypoint. But keep in mind that it could be only sh or no shell at all. For example in deb11 simple shell is still presented, and I’ve used it to run the app:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span>...<span style="color:#960050;background-color:#1e0010">
+</span></span></span><span style="display:flex;"><span><span style="color:#960050;background-color:#1e0010"></span><span style="color:#66d9ef">ENTRYPOINT</span> <span style="color:#f92672">{</span> /bin/sh /app/service/serve_distroless.sh; <span style="color:#f92672">}</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>Also, in your runner script, usually it is better to specify full paths to executables, like /usr/local/bin/gunicorn.</p>
+<h3 id="add-cuda-support">Add CUDA support</h3>
+<p>Basically, everything said in the previous section stays the same, except that you can use specialized cuda image as a base one, like that:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#66d9ef">FROM</span><span style="color:#e6db74"> nvidia/cuda:11.7.1-cudnn8-runtime-ubuntu20.04 as py</span><span style="color:#960050;background-color:#1e0010">
+</span></span></span></code></pre></div><p>In case of <code>pytorch</code> - it already has needed cuda libs shipped inside a wheel, the only thing is that host machine should share the device properly. In case of other dl frameworks, like <code>tensorflow</code>, you may need to copy some libs like <code>lubcudnn.so</code> and <code>libcudart.so</code> to the second stage (like described <a href="https://github.com/uvarc/rivanna-docker/blob/a1d6d02069643ae4d3063f57f2cc965fc208577b/tensorflow/2.4.0/Dockerfile.distroless">here</a>).</p>
+<h2 id="results">Results</h2>
+<p>Setup:</p>
+<ul>
+<li><a href="https://instances.vantage.sh/aws/ec2/g5.2xlarge">g5.x2large</a> EC2 VM with ubuntu based AMI for torch 1.13.1</li>
+<li><a href="https://github.com/wagoodman/dive">dive</a> used for built image analysis</li>
+</ul>
+<p>Here are some results for two applications:</p>
+<ul>
+<li>CPU-based one. First clear benefit - image size reduction: <strong>~2.3 Gb vs ~1.3 Gb</strong> → decreased image delivery time. You can see the differences below (on the left - old way, on the right - distroless):</li>
+</ul>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/distroless/size_comparison.png"/>
+</p>  
+<ul>
+<li>Next application uses CUDA. We can reduce the size of the resulting image more than x2 times, for pytorch, if we copy only torch python package into the distroless part, without need to copy other cuda libs (and even use just python-slim as a base image instead of ubuntu with cuda). In the end the difference is: <strong>~11 Gb vs ~4.5 Gb</strong>.</li>
+</ul>
+<p style="display: block; margin-left: auto; margin-right: auto; width: 100%; height: auto;">
+  <img src="/distroless/size_comparison_gpu.png"/>
+</p>  
+<hr>
+
+</article>
+
+                
+    
+    
+        <!-- This is footer.
+You can edit this in ../nostyleplease/layouts/footer.md -->
+
+    
+
+
+            </div>
+        </main>
+    </body>
+</html>

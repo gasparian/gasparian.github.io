@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru-ru"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <meta name="description" content="Introduction
+AnyDesk is one of the most popular remote desktop tools, used worldwide—including in some security-sensitive industries. The issue is that closed-source software is hard to audit, and it’s especially risky if the vendor operates in jurisdictions with broad government access powers, like the EU.
+More specifically, AnyDesk is a German company and (at least for its public infrastructure) relies on third-party OVHcloud hosting (French, based in the EU). I think that in 2025, it’s hard to argue how big of a concern that is ;)">  
+
+  <title>
+    
+      Замена A̶n̶y̶d̶e̶s̶k̶ на RustDesk!
+    
+  </title>
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/" />
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.900100e9dbee2d56c58fac8bb717037cae7e26a9c36c29d2ff587bdd65f0cbbe510b41d81a3bb234919cdfdc7550d786b2fab70c8fc507772d732fe097106d12.css" integrity="sha512-kAEA6dvuLVbFj6yLtxcDfK5&#43;JqnDbCnS/1h73WXwy75RC0HYGjuyNJGc39x1UNeGsvq3DI/FB3ctcy/glxBtEg==" />
+  
+  
+  <link rel="stylesheet" href="/css/custom.c8e1e56572d2f8834784c95261979120d7fa0ad620c99384652a97322238f5f3df327cfe6e7202f2aae7889077f7df104d752d3ec8512583c19a881059e58ab2.css" integrity="sha512-yOHlZXLS&#43;INHhMlSYZeRINf6CtYgyZOEZSqXMiI49fPfMnz&#43;bnIC8qrniJB3998QTXUtPshRJYPBmogQWeWKsg==" />
+  
+</head>
+<body a="auto">
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">&lt;--</a>
+
+
+<article>
+    <p class="post-meta">
+        <time datetime="2025-10-21 20:25:08 &#43;0100 &#43;0100">
+            2025-10-21
+        </time>
+    </p>
+
+    <h1>Замена A̶n̶y̶d̶e̶s̶k̶ на RustDesk!</h1>
+
+    
+
+    <h2 id="introduction">Introduction</h2>
+<p><code>AnyDesk</code> is one of the most popular remote desktop tools, used worldwide—including in some security-sensitive industries. The issue is that closed-source software is hard to audit, and it’s especially risky if the vendor operates in jurisdictions with broad government access powers, like the EU.</p>
+<p>More specifically, AnyDesk is a German company and (at least for its public infrastructure) relies on third-party OVHcloud hosting (French, based in the EU). I think that in 2025, it’s hard to argue how big of a concern that is ;)</p>
+<p>At a high level, this kind of software uses centralized “rendezvous” (sometimes called “broker” or “signaling”) servers to match clients and help them establish a peer-to-peer (P2P) connection. If a direct P2P connection can’t be established—due to NAT, complex network topologies, or restrictive firewalls—the connection typically falls back to a relay server that forwards traffic between the endpoints.</p>
+<p>Even if the vendor states that traffic is end-to-end encrypted, you still have to trust the vendor’s binaries and update mechanism. A malicious or compromised update could weaken or disable encryption, or misuse/replace certificates and keys. With closed-source clients and servers, it’s difficult to independently verify what is happening on the wire over time.</p>
+<p>For example, there were several quite severe flaws recently:</p>
+<ul>
+<li><a href="https://www.quorumcyber.com/threat-intelligence/anydesk-code-signing-certificate-compromised-and-revoked/">https://www.quorumcyber.com/threat-intelligence/anydesk-code-signing-certificate-compromised-and-revoked/</a></li>
+<li><a href="https://securitricks.com/cve/CVE-2025-27916">https://securitricks.com/cve/CVE-2025-27916</a></li>
+<li><a href="https://vulnerability.circl.lu/vuln/ghsa-rqf6-6p8f-f2pv">https://vulnerability.circl.lu/vuln/ghsa-rqf6-6p8f-f2pv</a></li>
+</ul>
+<p>As an alternative to AnyDesk for remote desktop access, you can self-host an open-source solution such as <a href="https://github.com/rustdesk/rustdesk">RustDesk</a>.</p>
+<p>The idea is roughly: deploy your own rendezvous (ID) server and relay server on <em>hardware you control</em> → distribute the server address and its public key / fingerprint to your clients → connect by ID (similar to AnyDesk) while keeping the entire control plane, and any necessary relaying, <em>inside your own network</em>.</p>
+<p><em>Of course</em>, open source doesn’t guarantee that there are no backdoors, etc.; the key difference is that you control the deployment and can keep it <em>entirely private</em>.</p>
+<h2 id="installation">Installation</h2>
+<h3 id="server-you-can-peek-here">Server (you can peek <a href="https://github.com/techahold/rustdeskinstall/blob/master/install.sh">here</a>)</h3>
+<p>The easiest way is to go to the releases of the main GitHub repository:<br>
+<a href="https://github.com/rustdesk/rustdesk-server/releases">https://github.com/rustdesk/rustdesk-server/releases</a></p>
+<p>Find the ZIP archive with the prebuilt binaries and unpack it to <code>/opt/rustdesk</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>chmod +x /opt/rustdesk/hbbs
+</span></span><span style="display:flex;"><span>chmod +x /opt/rustdesk/hbbr
+</span></span></code></pre></div><p>Next, define two linux services, <code>/etc/systemd/system/rustdesk-hbbr.service</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#f92672">[</span>Unit<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>Description<span style="color:#f92672">=</span>RustDesk Relay Server
+</span></span><span style="display:flex;"><span>After<span style="color:#f92672">=</span>network.target
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>Service<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>Type<span style="color:#f92672">=</span>simple
+</span></span><span style="display:flex;"><span>WorkingDirectory<span style="color:#f92672">=</span>/opt/rustdesk
+</span></span><span style="display:flex;"><span>ExecStart<span style="color:#f92672">=</span>/opt/rustdesk/hbbr
+</span></span><span style="display:flex;"><span>Restart<span style="color:#f92672">=</span>always
+</span></span><span style="display:flex;"><span>Environment<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;RUST_LOG=debug&#34;</span>
+</span></span><span style="display:flex;"><span>StandardOutput<span style="color:#f92672">=</span>append:/opt/rustdesk/hbbr.log
+</span></span><span style="display:flex;"><span>StandardError<span style="color:#f92672">=</span>append:/opt/rustdesk/hbbr.log
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>Install<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>WantedBy<span style="color:#f92672">=</span>multi-user.target
+</span></span></code></pre></div><p>And <code>/etc/systemd/system/rustdesk-hbbs.service</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#f92672">[</span>Unit<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>Description<span style="color:#f92672">=</span>RustDesk ID Server
+</span></span><span style="display:flex;"><span>After<span style="color:#f92672">=</span>network.target
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>Service<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>Type<span style="color:#f92672">=</span>simple
+</span></span><span style="display:flex;"><span>WorkingDirectory<span style="color:#f92672">=</span>/opt/rustdesk
+</span></span><span style="display:flex;"><span>Environment<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;RUST_LOG=debug&#34;</span>
+</span></span><span style="display:flex;"><span>ExecStart<span style="color:#f92672">=</span>/opt/rustdesk/hbbs -r &lt;SERVER_IPV4_ADDRESS&gt;:21117
+</span></span><span style="display:flex;"><span>StandardOutput<span style="color:#f92672">=</span>append:/opt/rustdesk/hbbs.log
+</span></span><span style="display:flex;"><span>StandardError<span style="color:#f92672">=</span>append:/opt/rustdesk/hbbs.log
+</span></span><span style="display:flex;"><span>Restart<span style="color:#f92672">=</span>always
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">[</span>Install<span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>WantedBy<span style="color:#f92672">=</span>multi-user.target
+</span></span></code></pre></div><p>Start the Signal (ID) server first:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo systemctl daemon-reload
+</span></span><span style="display:flex;"><span>sudo systemctl enable rustdesk-hbbs.service
+</span></span><span style="display:flex;"><span>sudo systemctl start rustdesk-hbbs.service
+</span></span></code></pre></div><p>Wait until it starts:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo systemctl status rustdesk-hbbs.service
+</span></span></code></pre></div><p>Then run the relay part:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo systemctl daemon-reload
+</span></span><span style="display:flex;"><span>sudo systemctl enable rustdesk-hbbr.service
+</span></span><span style="display:flex;"><span>sudo systemctl start rustdesk-hbbr.service
+</span></span></code></pre></div><p>Once it has started, a pair of <code>ed25519</code> keys will appear in <code>/opt/rustdesk</code>. The clients will need the public key.<br>
+Don’t forget to forward these ports externally and whitelist them:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>ufw allow 21114:21119/tcp
+</span></span><span style="display:flex;"><span>ufw allow 21116/udp
+</span></span><span style="display:flex;"><span>sudo ufw enable
+</span></span></code></pre></div><h2 id="client">Client</h2>
+<p>From the same releases, install the client:<br>
+<a href="https://github.com/rustdesk/rustdesk-server/releases">https://github.com/rustdesk/rustdesk-server/releases</a></p>
+<p>Then open <strong>Settings → Network → Unlock → ID/Relay server</strong> and enter:</p>
+<ul>
+<li>(ID) Server address: <code>&lt;SERVER_IPV4_ADDRESS&gt;:21116</code></li>
+<li>Relay server address: <code>&lt;SERVER_IPV4_ADDRESS&gt;:21117</code></li>
+<li>In the <code>key</code> field, paste the <strong>public key</strong> you took from the server</li>
+<li>Leave the other fields empty</li>
+</ul>
+<p>On all client machines, it’s convenient (yet less secure then one-time password) to configure a <strong>permanent password</strong> in the <strong>Security</strong> tab of the settings.</p>
+<p>On the machines you plan to connect to, allow the RustDesk service to run and to start automatically on OS boot.</p>
+<p>The usage flow is almost the same as AnyDesk, so it’s pretty quick to get familiar with.</p>
+<p><strong><em>Note on session encryption:</em></strong><br>
+While the server’s public key authenticates the infrastructure and secures the signalling channel, the actual remote‑desktop traffic is protected by end‑to‑end encryption.<br>
+During the connection handshake, the clients generate ephemeral encryption keys, ensuring that even the RustDesk server (or relay) cannot decrypt the screen data. This provides an additional layer of security beyond the server key and the password on the controlled machine.</p>
+<hr>
+<p>Enjoy!</p>
+
+</article>
+
+                
+    
+    
+        <!-- This is footer.
+You can edit this in ../nostyleplease/layouts/footer.md -->
+
+    
+
+
+            </div>
+        </main>
+    </body>
+</html>

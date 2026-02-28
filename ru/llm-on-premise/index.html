@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ru-ru"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <meta name="description" content="Choosing the LLM
+If order to find current SOTA LLMs, the best way to start - is to gather various LLM benchmarks.
+There are numerous public LLM benchmarking efforts currently available, with the most influential being the Open LLM Leaderboard provided by Hugging Face, which attracts approximately 40 million monthly visits to the platform and consists of evaluation datasets covering a diverse range of challenges, and LMSYS Chatbot Arena (also known as &ldquo;LMArena&rdquo;), which employs a custom approach to rank models based on human preference, engages millions of monthly &ldquo;players&rdquo; on the platform, and conducts pre-release tests for top-tier AI labs such as OpenAI, xAI, Meta, Google, and others.">  
+
+  <title>
+    
+      LLM для on-premise развертывания
+    
+  </title>
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/" />
+  
+  
+  
+  <link rel="stylesheet" href="/css/main.900100e9dbee2d56c58fac8bb717037cae7e26a9c36c29d2ff587bdd65f0cbbe510b41d81a3bb234919cdfdc7550d786b2fab70c8fc507772d732fe097106d12.css" integrity="sha512-kAEA6dvuLVbFj6yLtxcDfK5&#43;JqnDbCnS/1h73WXwy75RC0HYGjuyNJGc39x1UNeGsvq3DI/FB3ctcy/glxBtEg==" />
+  
+  
+  <link rel="stylesheet" href="/css/custom.c8e1e56572d2f8834784c95261979120d7fa0ad620c99384652a97322238f5f3df327cfe6e7202f2aae7889077f7df104d752d3ec8512583c19a881059e58ab2.css" integrity="sha512-yOHlZXLS&#43;INHhMlSYZeRINf6CtYgyZOEZSqXMiI49fPfMnz&#43;bnIC8qrniJB3998QTXUtPshRJYPBmogQWeWKsg==" />
+  
+</head>
+<body a="auto">
+        <main class="page-content" aria-label="Content">
+            <div class="w">
+<a href="/">&lt;--</a>
+
+
+<article>
+    <p class="post-meta">
+        <time datetime="2025-02-01 00:00:00 &#43;0000 UTC">
+            2025-02-01
+        </time>
+    </p>
+
+    <h1>LLM для on-premise развертывания</h1>
+
+    
+
+    <h1 id="choosing-the-llm">Choosing the LLM</h1>
+<p>If order to find current SOTA LLMs, the best way to start - is to gather various LLM benchmarks.<br>
+There are numerous public LLM benchmarking efforts currently available, with the most influential being the <a href="https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard#/?official=true">Open LLM Leaderboard</a> provided by Hugging Face, which attracts approximately <a href="https://www.semrush.com/website/huggingface.co/overview/">40 million</a> monthly visits to the platform and consists of evaluation datasets covering a diverse range of challenges, and <a href="https://lmarena.ai/?ref=top-ai-list">LMSYS Chatbot Arena</a> (also known as &ldquo;LMArena&rdquo;), which employs a <a href="https://arxiv.org/pdf/2403.04132">custom approach</a> to rank models based on human preference, engages millions of monthly &ldquo;players&rdquo; on the platform, and conducts pre-release tests for top-tier AI labs such as OpenAI, xAI, Meta, Google, and others.</p>
+<p>These two benchmarks differ in their evaluation methods and the types of models tested. The Open LLM Leaderboard primarily focuses on models with open-source code and weights, whereas Chatbot Arena evaluates both proprietary and open-source models.</p>
+<p>Below, we analyze the rankings from both initiatives.</p>
+<h2 id="open-llm-leaderboard">Open LLM Leaderboard</h2>
+<p>The Open LLM Leaderboard uses the following metrics, calculated as a weighted average:</p>
+<ul>
+<li><a href="https://ukgovernmentbeis.github.io/inspect_evals/evals/reasoning/ifeval/index.html">IFEval</a>: Instruction-Following Evaluation for Large Language Models. This approach generates a large set of verifiable tasks, such as &ldquo;write in more than 400 words&rdquo; or &ldquo;mention the keyword &lsquo;AI&rsquo; at least three times.&rdquo;</li>
+<li><a href="https://github.com/suzgunmirac/BIG-Bench-Hard/tree/main/bbh">Big Bench Hard (BBH)</a>: A set of diverse tasks with defined answers, including solving Boolean expressions, understanding dates, and causal judgment.</li>
+<li><a href="https://huggingface.co/datasets/hendrycks/competition_math">Mathematics Aptitude Test of Heuristics (MATH), Level 5</a>: A collection of high-school math competition problems with exact answers that the model must match perfectly.</li>
+<li><a href="https://github.com/idavidrein/gpqa">Graduate-Level Google-Proof Q&amp;A (GPQA)</a>: A highly challenging dataset of 448 expert-written multiple-choice questions in biology, physics, and chemistry, designed to be extremely difficult even for domain experts. The dataset facilitates scalable oversight experiments to develop methods for human experts to supervise AI systems that surpass human capabilities in answering complex scientific questions.</li>
+<li><a href="https://github.com/zayne-sprague/musr?tab=readme-ov-file">Multistep Soft Reasoning (MuSR)</a>: A dataset of 756 examples across three domains—murder mysteries, object placements, and team allocation—focused on hard reasoning tasks.</li>
+<li><a href="https://github.com/tanaybaswa/mmlu-pro">Massive Multitask Language Understanding - Professional (MMLU-Pro)</a>: An advanced benchmark enhancing the original <a href="https://arxiv.org/pdf/2009.03300">MMLU dataset</a> with more challenging, reasoning-focused questions, offering ten answer choices per question to increase difficulty and reduce random guessing. It spans 14 diverse domains, demonstrates stability under prompt variations, and emphasizes complex reasoning tasks with improved performance using Chain of Thought reasoning.</li>
+</ul>
+<p>Since we are focusing on open-source LLMs suitable for on-premises deployment with fewer than 80 billion parameters, capable of running on 1x–2x A100 or 1x H200 GPUs, the following table synthesizes the key attributes of the top three models from official providers (as of February 2025):</p>
+<table>
+  <thead>
+      <tr>
+          <th>Model</th>
+          <th>Parameters</th>
+          <th>Context Window</th>
+          <th>License</th>
+          <th>GPU VRAM*</th>
+          <th>wAvg**</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Qwen/Qwen2.5-72B-Instruct</td>
+          <td>72B</td>
+          <td>128k tokens</td>
+          <td>Custom Qwen</td>
+          <td>67 GB</td>
+          <td>47.98</td>
+      </tr>
+      <tr>
+          <td>Qwen/Qwen2.5-32B-Instruct</td>
+          <td>32B</td>
+          <td>128k tokens</td>
+          <td>Custom Qwen</td>
+          <td>29.8 GB</td>
+          <td>46.60</td>
+      </tr>
+      <tr>
+          <td>meta-llama/Llama-3.3-70B-Instruct</td>
+          <td>70B</td>
+          <td>128k tokens</td>
+          <td>Llama3.3</td>
+          <td>64.7 GB</td>
+          <td>44.85</td>
+      </tr>
+  </tbody>
+</table>
+<p>*bfloat16; No KV-cache (<a href="https://huggingface.co/spaces/Vokturz/can-it-run-llm">method</a>).<br>
+**Weighted average of <a href="https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard#/?official=true">Open LLM metrics</a>.</p>
+<p>The following table lists models from community providers:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Model</th>
+          <th>Parameters</th>
+          <th>Context Window</th>
+          <th>License</th>
+          <th>GPU VRAM*</th>
+          <th>wAvg**</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>MaziyarPanahi/calme-3.2-instruct-78b</td>
+          <td>78B</td>
+          <td>128k tokens</td>
+          <td>Custom Qwen</td>
+          <td>71.5 GB</td>
+          <td>52.08</td>
+      </tr>
+      <tr>
+          <td>MaziyarPanahi/calme-3.1-instruct-78b</td>
+          <td>78B</td>
+          <td>128k tokens</td>
+          <td>Custom Qwen</td>
+          <td>71.5 GB</td>
+          <td>51.29</td>
+      </tr>
+      <tr>
+          <td>dfurman/CalmeRys-78B-Orpo-v0.1</td>
+          <td>78B</td>
+          <td>128k tokens</td>
+          <td>MIT</td>
+          <td>71.5 GB</td>
+          <td>51.23</td>
+      </tr>
+  </tbody>
+</table>
+<p>*bfloat16; No KV-cache (method).<br>
+**Weighted average of Open LLM metrics.</p>
+<p>A clear pattern emerges: most leading models are built on top of <a href="https://arxiv.org/pdf/2412.15115">Qwen-2.5</a>, with community-provided variants achieving remarkable results across all benchmarks.</p>
+<p>According to <a href="https://arxiv.org/pdf/2412.15115">the report</a>, Qwen-2.5, like many modern LLMs, is based on a <a href="https://en.wikipedia.org/wiki/Mixture_of_experts">Mixture-of-Experts</a> (MoE) architecture, incorporating enhancements such as <a href="https://medium.com/@maxshapp/grouped-query-attention-gqa-explained-with-code-e56ee2a1df5a">Grouped Query Attention</a> (GQA) and <a href="https://blog.eleuther.ai/rotary-embeddings/">Rotary Positional Embeddings</a> (RoPE) for efficient processing (pre-trained on ~18 trillion tokens).</p>
+<h2 id="chatbot-arena">Chatbot Arena</h2>
+<p>Chatbot Arena adopts a different <a href="https://arxiv.org/pdf/2403.04132">evaluation approach</a>, utilizing crowdsourced, pairwise comparisons of model responses to user-generated prompts. Users vote on their preferred model response, and the platform employs statistical methods, such as the <a href="https://en.wikipedia.org/wiki/Bradley%E2%80%93Terry_model">Bradley-Terry model</a>, to rank models based on these preferences. Key metrics include win rates and confidence intervals for model rankings, ensuring robust and sample-efficient evaluations. The primary benefits of this approach are its real-world relevance (due to diverse, live user prompts), scalability, and transparency, providing an open platform for continuous, human-aligned evaluation of LLMs. The resulting rating is an <a href="https://en.wikipedia.org/wiki/Elo_rating_system">Elo score</a>, calculated based on all &ldquo;games&rdquo; played by the AIs.</p>
+<p>The following table lists the top open-source models, excluding proprietary ones (the top model was xAI’s Grok 3):</p>
+<table>
+  <thead>
+      <tr>
+          <th>Model</th>
+          <th>Parameters</th>
+          <th>Context Window</th>
+          <th>License</th>
+          <th>GPU VRAM*</th>
+          <th>Elo Score</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>DeepSeek R1</td>
+          <td>671B</td>
+          <td>128k tokens</td>
+          <td>MIT</td>
+          <td>1543 GB</td>
+          <td>1361</td>
+      </tr>
+      <tr>
+          <td>DeepSeek V3</td>
+          <td>671B</td>
+          <td>128k tokens</td>
+          <td>DeepSeek</td>
+          <td>1543 GB</td>
+          <td>1317</td>
+      </tr>
+      <tr>
+          <td>Deepseek-V2.5-1210</td>
+          <td>237B</td>
+          <td>164k tokens</td>
+          <td>DeepSeek</td>
+          <td>640 GB</td>
+          <td>1279</td>
+      </tr>
+      <tr>
+          <td>Athene-v2-Chat-72B</td>
+          <td>72B</td>
+          <td>128k tokens</td>
+          <td>NexusFlow</td>
+          <td>67 GB</td>
+          <td>1275</td>
+      </tr>
+  </tbody>
+</table>
+<p>*bfloat16; No KV-cache (<a href="https://huggingface.co/spaces/Vokturz/can-it-run-llm">method</a>).</p>
+<p>In Chatbot Arena, smaller, top-rated models are scarce, with the leaderboard dominated by large DeepSeek models. However, <a href="https://huggingface.co/Nexusflow/Athene-V2-Chat">Athene-v2</a>, trained on the Qwen-2.5 base model using <a href="https://en.wikipedia.org/wiki/Reinforcement_learning_from_human_feedback">RLHF</a> and designed to compete with GPT-4o, is a strong candidate for on-premises deployment due to its open weights.</p>
+<p>Another alternative is the distilled DeepSeek R1 models, also based on Qwen-2.5, as shown in the Open LLM Leaderboard results:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Model</th>
+          <th>Parameters</th>
+          <th>Context Window</th>
+          <th>License</th>
+          <th>GPU VRAM*</th>
+          <th>wAvg**</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>deepseek-ai/DeepSeek-R1-Distill-Qwen-14B</td>
+          <td>14B</td>
+          <td>128k tokens</td>
+          <td>MIT</td>
+          <td>15.64 GB</td>
+          <td>38.22</td>
+      </tr>
+      <tr>
+          <td>deepseek-ai/DeepSeek-R1-Distill-Qwen-70B</td>
+          <td>70B</td>
+          <td>128k tokens</td>
+          <td>MIT</td>
+          <td>77.7 GB</td>
+          <td>27.81</td>
+      </tr>
+      <tr>
+          <td>deepseek-ai/DeepSeek-R1-Distill-Llama-32B</td>
+          <td>32B</td>
+          <td>128k tokens</td>
+          <td>MIT</td>
+          <td>35.75 GB</td>
+          <td>22.96</td>
+      </tr>
+  </tbody>
+</table>
+<p>*bfloat16; No KV-cache (<a href="https://huggingface.co/spaces/Vokturz/can-it-run-llm">method</a>).<br>
+**Weighted average of <a href="https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard#/?official=true">Open LLM metrics</a>.</p>
+<p>Surprisingly, the smaller <a href="https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-14B">DeepSeek-R1-Distill-Qwen-14B</a> model, fine-tuned on domain-specific datasets, achieves the best performance among the distilled models, making it the easiest to serve due to its smaller size.</p>
+<h2 id="licensing-considerations">Licensing Considerations</h2>
+<table>
+  <thead>
+      <tr>
+          <th>License</th>
+          <th>Commercial Use</th>
+          <th>Attribution</th>
+          <th>Redistribution</th>
+          <th>Modifications</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Qwen</td>
+          <td>&lt;100M MAU</td>
+          <td>Required</td>
+          <td>Allowed</td>
+          <td>Allowed</td>
+      </tr>
+      <tr>
+          <td>Llama3.3</td>
+          <td>&lt;700M MAU</td>
+          <td>Required</td>
+          <td>Allowed</td>
+          <td>Allowed</td>
+      </tr>
+      <tr>
+          <td>DeepSeek</td>
+          <td>+</td>
+          <td>Required</td>
+          <td>Allowed</td>
+          <td>Allowed</td>
+      </tr>
+      <tr>
+          <td>NexusFlow</td>
+          <td>+</td>
+          <td>Required</td>
+          <td>Allowed</td>
+          <td>Allowed</td>
+      </tr>
+      <tr>
+          <td>MIT</td>
+          <td>+</td>
+          <td>Required</td>
+          <td>Allowed</td>
+          <td>Allowed</td>
+      </tr>
+  </tbody>
+</table>
+<p>Meta’s Llama 3.3 custom license prohibits deployment on AWS or Azure marketplaces, while DeepSeek’s Apache 2.0 license offers full flexibility.</p>
+<h2 id="picking-candidates">Picking Candidates</h2>
+<p>Before assessing runtime environments, we select the following model families based on performance, size, and licensing for compatibility with modern deep learning frameworks and inference engines:</p>
+<ul>
+<li><strong>MaziyarPanahi/calme-3.2-instruct-78b</strong>: The largest and most performant model according to the Open LLM Leaderboard, with a relaxed license.</li>
+<li><strong>Qwen/Qwen2.5-32B-Instruct</strong>: Strong performance with a moderate parameter count.</li>
+<li><strong>deepseek-ai/DeepSeek-R1-Distill-Qwen-14B</strong>: Excellent Open LLM score with the smallest parameter count and the most permissive MIT license.</li>
+<li><strong>meta-llama/Llama-3.3-70B-Instruct</strong>: A strong alternative to Qwen-2.5-based models, with good performance and broader support in the deep learning ecosystem due to its fully open-source nature.</li>
+</ul>
+<h1 id="inference-engine">Inference Engine</h1>
+<p>For running these models, we consider two primary options: <a href="https://github.com/vllm-project/vllm">vLLM</a> + NVIDIA <a href="https://github.com/triton-inference-server/server">Triton Inference Server</a> served as a standalone / k8s VM and a <a href="https://github.com/ray-project/ray">Ray Cluster</a>.</p>
+<h2 id="vllm">vLLM</h2>
+<p><a href="https://github.com/vllm-project/vllm">vLLM</a> is an optimized LLM runtime and inference server, widely regarded as the standard for cloud-based LLM deployment. It introduced <a href="https://arxiv.org/pdf/2309.06180">Paged Attention</a>, which applies a virtual memory model with paging to the KV-cache matrix, significantly increasing throughput by handling more simultaneous requests. Additional benefits include:</p>
+<ul>
+<li>Up to 24x higher throughput compared to traditional methods.</li>
+<li>PagedAttention reduces KV cache fragmentation by 80%.</li>
+<li>High-Throughput Mode: Processes 2.4k tokens/sec on an A100 with <code>max_num_batched_tokens=4096</code> (~7B–8B models class).</li>
+<li>Uses the Open AI Chat Completions API for easy integration with existing systems.</li>
+<li>Dynamically adjusts batch size based on real-time requirements.</li>
+<li>Reduces latency by processing requests as they arrive, rather than waiting for full batches.</li>
+</ul>
+<p>The models selected (based on Qwen-2.5 or Llama) are <a href="https://docs.vllm.ai/en/latest/models/supported_models.html">supported</a> by vLLM. However, for production use, a more mature technology stack may be beneficial for detailed monitoring, tooling, and additional interfaces.</p>
+<h3 id="nvidia-triton-inference-server">NVIDIA Triton Inference Server</h3>
+<p>Triton is a standard for deploying models in the ML engineering community, offering pluggable backends, fine-grained metrics, multi-GPU automatic memory management, and more.</p>
+<h4 id="gpu-memory-management">GPU Memory Management</h4>
+<p>Triton employs the following strategies for optimal GPU utilization:</p>
+<ul>
+<li><strong>Concurrent Model Execution</strong>: Parallelizes multiple models/instances through GPU hardware scheduling. A Llama 3.3 instance can coexist with Qwen-2.5 on the same A100 cluster without performance degradation.</li>
+<li><strong>Instance Groups</strong>: Configures multiple parallel executions per model.</li>
+<li><strong>Pipelines of Models</strong>: Models can &ldquo;live&rdquo; on the same GPUs.</li>
+<li><strong>Dynamic Batching</strong>: Combines requests from multiple users into a single batch for processing.</li>
+</ul>
+<p>Triton integrates easily with Kubernetes, supporting auto-scaling via Prometheus metrics.</p>
+<h4 id="pipeline-optimization">Pipeline Optimization</h4>
+<p>Triton’s ensemble scheduler chains preprocessing (Python/C++), inference (TensorRT), and postprocessing into a single request. For example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-plaintext" data-lang="plaintext"><span style="display:flex;"><span>ensemble {
+</span></span><span style="display:flex;"><span>  step [
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      model_name: &#34;text_helper&#34;
+</span></span><span style="display:flex;"><span>      model_version: -1
+</span></span><span style="display:flex;"><span>      input_map { key: &#34;text&#34; value: &#34;raw_input&#34; }
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>      model_name: &#34;llama3_retriever&#34;
+</span></span><span style="display:flex;"><span>      model_version: -1
+</span></span><span style="display:flex;"><span>      input_map { key: &#34;embedding&#34; value: &#34;text_helper.output&#34; }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Hosting all models on the same virtual machine using the same GPU(s) significantly reduces latency compared to microservice architectures by eliminating slow network I/O.</p>
+<h3 id="nvidia-triton-inference-server--vllm-backend">NVIDIA Triton Inference Server + vLLM Backend</h3>
+<p>Since Triton Server v23.10, a <a href="https://github.com/triton-inference-server/vllm_backend">vLLM backend</a> has been available, combining vLLM’s high-throughput techniques with Triton’s benefits. This is particularly convenient for models that do not require distributed inference and can fit on a few A100 GPUs mounted on the same machine. However, there are some drawbacks:</p>
+<ul>
+<li>Requires the use of the Triton interface instead of the convenient Open AI Chat API.</li>
+<li>Deployment requires additional configuration and image building.</li>
+</ul>
+<h2 id="alternative-ray--vllm">Alternative: Ray + vLLM</h2>
+<p><a href="https://docs.ray.io/en/latest/serve/index.html">Ray Serve</a> is a Python-first, framework-agnostic alternative based on the <a href="https://en.wikipedia.org/wiki/Actor_model">actor model</a>, enabling stateful and asynchronous computing in distributed systems. It extends Ray’s API from functions (tasks) to classes, creating stateful workers or services.</p>
+<p><strong>Pros</strong>:</p>
+<ul>
+<li>Allows specification of VM characteristics directly in Python code.</li>
+<li>Supports <a href="https://docs.ray.io/en/latest/serve/tutorials/vllm-example.html">vLLM</a> in multi-GPU/multi-tenant setups.</li>
+<li>Used by major LLM providers like OpenAI.</li>
+</ul>
+<p><strong>Cons</strong>:</p>
+<ul>
+<li>Requires running a Ray Cluster on top of Kubernetes or using <a href="https://www.anyscale.com/blog/announcing-ray-2-4-0-infrastructure-for-llm-training-tuning-inference-and">Anyscale’s solution</a>, increasing management overhead.</li>
+</ul>
+<h1 id="conclusion">Conclusion</h1>
+<ul>
+<li>For smaller companies, NVIDIA Triton paired with vLLM is recommended to run models like <strong>Qwen2.5-32B-Instruct</strong> or <strong>DeepSeek-R1-Distill-Qwen-14B</strong> on a single A100, scalable as a standard Kubernetes deployment without the overhead of managing an overlay cluster.</li>
+<li>For larger enterprises, a <strong>Ray Cluster</strong> with vLLM runtime, either on in-house Kubernetes or via Anyscale, is ideal for serving larger models like <strong>MaziyarPanahi/calme-3.2-instruct-78b</strong> (the current state-of-the-art in open-source) or <strong>meta-llama/Llama-3.3-70B-Instruct</strong>.</li>
+</ul>
+<hr>
+
+</article>
+
+                
+    
+    
+        <!-- This is footer.
+You can edit this in ../nostyleplease/layouts/footer.md -->
+
+    
+
+
+            </div>
+        </main>
+    </body>
+</html>
