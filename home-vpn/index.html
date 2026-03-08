@@ -4,16 +4,15 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
    <meta name="description" content="Intro
-VPNs are primarily designed to create a secure and encrypted connection between your device and a remote server. This connection can be used to protect online privacy, hide your IP address and enhance security when connecting to the internet, especially on public Wi-Fi networks.
-So let&rsquo;s configure our own, home VPN server without a paid cloud. Pay once ;)
-Hardware
-Raspberry PI looks like a good option, since it&rsquo;s a powerful mini-computer with all needed interfaces for the fair price.
-The best option to buy it - order in China. I&rsquo;ve used pi4B with 8Gb of RAM as an example, but you can choose simpler model without Ethernet/USB-A and with 2 Gb RAM - it should serve the needs of a couple users just fine.
-I suggest to buy a complete set with the housing and a power unit, like this one.">  
+VPNs were originally built to securely extend private networks across untrusted infrastructure, letting remote users or separate local networks communicate as if they were on the same internal network.
+Today, the same tunneling model is also commonly used as a privacy layer for routing personal internet traffic more discreetly.
+Comparing to the regular proxy, which just relays application traffic, a VPN is meant to securely extend a network boundary.
+That matters because the original motivation behind VPNs was not “hide my IP,” but: “Make a remote device behave like it is securely attached to a private network.”
+In this post, I&rsquo;ll explain one of the simplest ways to set up a modern anti-sniffing VPN solution for personal use, without a VPC.">  
 
   <title>
     
-      Home VPN (XRay)
+      XRAY (VLESS &#43; REALITY &#43; VISION)
     
   </title>
 
@@ -41,53 +40,58 @@ I suggest to buy a complete set with the housing and a power unit, like this one
         </time>
     </p>
 
-    <h1>Home VPN (XRay)</h1>
+    <h1>XRAY (VLESS &#43; REALITY &#43; VISION)</h1>
 
     
 
     <h1 id="intro">Intro</h1>
-<p>VPNs are primarily designed to create a secure and encrypted connection between your device and a remote server. This connection can be used to protect online privacy, hide your IP address and enhance security when connecting to the internet, especially on public Wi-Fi networks.</p>
-<p>So let&rsquo;s configure our own, home VPN server without a paid cloud. Pay once ;)</p>
+<p>VPNs were originally built to securely extend private networks across untrusted infrastructure, letting remote users or separate local networks communicate as if they were on the same internal network.<br>
+Today, the same tunneling model is also commonly used as a privacy layer for routing personal internet traffic more discreetly.<br>
+Comparing to the regular proxy, which just relays application traffic, a VPN is meant to securely extend a network boundary.<br>
+That matters because the original motivation behind VPNs was not “hide my IP,” but: “Make a remote device behave like it is securely attached to a private network.”<br>
+In this post, I&rsquo;ll explain one of the simplest ways to set up a modern anti-sniffing VPN solution for personal use, without a VPC.</p>
 <h1 id="hardware">Hardware</h1>
 <p><strong>Raspberry PI</strong> looks like a good option, since it&rsquo;s a powerful mini-computer with all needed interfaces for the fair price.<br>
-The best option to buy it - order in China. I&rsquo;ve used pi4B with 8Gb of RAM as an example, but you can choose simpler model without Ethernet/USB-A and with 2 Gb RAM - it should serve the needs of a couple users just fine.<br>
+The best option is to order it from Chinese marketplaces such as AliExpress. I used the Raspberry Pi 4B with 8 GB of RAM as an example, but you can choose a simpler model without Ethernet or USB-A and with 2 GB of RAM — it should serve the needs of dozens of users just fine.<br>
 I suggest to buy a complete set with the housing and a power unit, like <a href="https://www.aliexpress.com/item/1005004388968309.html?spm=a2g0o.order_list.order_list_main.41.4ace1802HcxGeZ">this one</a>.</p>
 <div style="display: flex; justify-content: center; align-items: center; gap: 20px; max-width: 60%; margin: 20px auto;">
   <img src="/home-vpn-static/raspi-inside-1.jpg" style="max-width: 100%; height: 450px; object-fit: cover; object-position: center;" />
 </div>
 <p>The best choice will be to install there Ubuntu Server with <a href="https://www.raspberrypi.com/software/">Raspberry PI Imager</a>. Don&rsquo;t forget to add your ssh key during configuration, and connect Pi to the router via Ethernet.</p>
-<h1 id="xray-vless">XRay (Vless)</h1>
-<p>The problem is that nowadays it&rsquo;s pretty easy to sniff the traffic with <a href="https://en.wikipedia.org/wiki/Deep_packet_inspection">dpi</a> technologies, detect packets of the popular VPN protocols and block them.<br>
-The general solution is to built a proxy based on protocol like <a href="https://shadowsocks.org/">Shadowsocks</a>, which is designed to be hard to detect, bypass firewalls and have traffic encryption. <br>
-My choice, atm, is <a href="https://github.com/XTLS/Xray-core">XRay (Vless)</a>.<br>
-<a href="https://xtls.github.io/en/development/protocols/vless.html">VLESS</a> is a lightweight, stateless transport protocol primarily used for secure communication. It is part of Xray, a project that extends and enhances the capabilities of <a href="https://www.v2ray.com/en/index.html">V2Ray</a>. V2Ray can be compared with Shadowsocks protocol and can be called it&rsquo;s successor (after the original Shadowsocks has been removed from the internet by the call from the government), rather than higher-level vpn/proxy solutions like Outline.<br>
+<h1 id="xray">XRay</h1>
+<p>The problem is that nowadays it&rsquo;s pretty easy to sniff the traffic with <a href="https://en.wikipedia.org/wiki/Deep_packet_inspection">dpi</a>, detect packets of the popular VPN protocols and drop them.<br>
+The general solution is to built a proxy based on protocol like <a href="https://shadowsocks.org/">Shadowsocks</a>, which is designed to be hard to detect, bypass firewalls and have traffic encryption.<br>
+My current pick is <a href="https://xtls.github.io/en/config/outbounds/vless.html">VLESS</a> + <a href="https://xtls.github.io/en/config/transport.html">REALITY</a> transport with <a href="https://xtls.github.io/en/config/transport.html#xtlsobject">XTLS Vision</a> on top of <a href="https://github.com/XTLS/Xray-core">Xray-core</a>.<br>
+What all that about:</p>
+<ul>
+<li><strong>VLESS</strong> — a lightweight, stateless proxy protocol.</li>
+<li><strong>REALITY</strong> — a transport layer for making traffic look like normal TLS/web traffic from the outside.</li>
+<li><strong>XTLS Vision</strong> — the flow/control mode used with Xray to improve efficiency and performance.</li>
+</ul>
+<p>That all is the part of Xray, a project that extends and enhances the capabilities of <a href="https://www.v2ray.com/en/index.html">V2Ray</a>. V2Ray can be compared with Shadowsocks protocol and can be called it&rsquo;s successor (after the original Shadowsocks has been removed from the internet), rather than higher-level vpn/proxy solutions like Outline.<br>
 Xray supports VLESS, while V2Ray does not natively include it, making Xray the appropriate choice for this setup.<br>
 So, let&rsquo;s configure XRay server and client.</p>
 <h2 id="server-ubuntu">Server (Ubuntu)</h2>
-<p>Install XRay Server:</p>
+<p>Install XRay:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>bash -c <span style="color:#e6db74">&#34;</span><span style="color:#66d9ef">$(</span>curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span>
-</span></span></code></pre></div><p>Generate a client ID:<br>
-<code style="background-color: #808080;">xray uuid</code>  .
-You should to it for every new client, and update the server config with the new client entry (see example below).</p>
-<p>Create that user id for every unique vpn user.<br>
-Generate a self-signed certificate and key:</p>
-<ul>
-<li>install openssl: <code style="background-color: #808080;">sudo apt-get install openssl</code></li>
-<li>generate certificate and key:</li>
-</ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo openssl req -x509 -nodes -days <span style="color:#ae81ff">99999</span> -newkey rsa:2048 -keyout /etc/xray/key.key -out /etc/xray/cert.crt -subj <span style="color:#e6db74">&#34;/CN=&lt;ROUTER_PUBLIC_DNS&gt;&#34;</span>
-</span></span></code></pre></div><p>This creates a certificate valid for 99999 days (think of smaller number for real &ldquo;prod&rdquo; usage), stored at /etc/xray/cert.crt with the key at /etc/xray/key.key.<br>
-Create a config file at <code style="background-color: #808080;">/usr/local/etc/xray/config.json</code>:</p>
+</span></span></code></pre></div><p>Then, create a REALITY public/private key pair (X25519), generate it ONCE per inbound (server):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>xray x25519
+</span></span></code></pre></div><p>Generated key pair used by REALITY for the server/client cryptographic handshake.</p>
+<p>Then generate a short uuid for that server:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>openssl rand -hex <span style="color:#ae81ff">8</span>
+</span></span></code></pre></div><p>And finally - create the first client ID with <code style="background-color: #808080;">xray uuid</code>.</p>
+<p>You should do it for every new client, and update the server config with the new client entry (see example below).</p>
+<p>Create a config file at <code style="background-color: #808080;">/usr/local/etc/xray/config.json</code>:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;inbounds&#34;</span>: [
 </span></span><span style="display:flex;"><span>    {
 </span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;listen&#34;</span>: <span style="color:#e6db74">&#34;0.0.0.0&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">4443</span>, <span style="color:#75715e">// or another free port
-</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;vless&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">4443</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;vless&#34;</span>,
 </span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;settings&#34;</span>: {
 </span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;clients&#34;</span>: [
 </span></span><span style="display:flex;"><span>          {
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;&lt;GENERATED_ID&gt;&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;&lt;USER_UUID&gt;&#34;</span>,
 </span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;level&#34;</span>: <span style="color:#ae81ff">0</span>,
 </span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;flow&#34;</span>: <span style="color:#e6db74">&#34;xtls-rprx-vision&#34;</span>
 </span></span><span style="display:flex;"><span>          }
@@ -96,15 +100,23 @@ Create a config file at <code style="background-color: #808080;">/usr/local/etc/
 </span></span><span style="display:flex;"><span>      },
 </span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;streamSettings&#34;</span>: {
 </span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;network&#34;</span>: <span style="color:#e6db74">&#34;tcp&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;security&#34;</span>: <span style="color:#e6db74">&#34;tls&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;tlsSettings&#34;</span>: {
-</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;certificates&#34;</span>: [
-</span></span><span style="display:flex;"><span>            {
-</span></span><span style="display:flex;"><span>              <span style="color:#f92672">&#34;certificateFile&#34;</span>: <span style="color:#e6db74">&#34;/etc/xray/cert.crt&#34;</span>,
-</span></span><span style="display:flex;"><span>              <span style="color:#f92672">&#34;keyFile&#34;</span>: <span style="color:#e6db74">&#34;/etc/xray/key.key&#34;</span>
-</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;security&#34;</span>: <span style="color:#e6db74">&#34;reality&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;realitySettings&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;show&#34;</span>: <span style="color:#66d9ef">false</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#75715e">//... or any other public, highly-available service
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>          <span style="color:#75715e">// which is reachable from the server
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>          <span style="color:#f92672">&#34;dest&#34;</span>: <span style="color:#e6db74">&#34;www.cloudflare.com:443&#34;</span>, 
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;xver&#34;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;serverNames&#34;</span>: [<span style="color:#e6db74">&#34;www.cloudflare.com&#34;</span>],
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;privateKey&#34;</span>: <span style="color:#e6db74">&#34;&lt;PRIVATE_KEY&gt;&#34;</span>, 
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;shortIds&#34;</span>: [
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;&lt;SHORT_ID&gt;&#34;</span>
 </span></span><span style="display:flex;"><span>          ]
 </span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      },
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;sniffing&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;enabled&#34;</span>: <span style="color:#66d9ef">true</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;destOverride&#34;</span>: [<span style="color:#e6db74">&#34;http&#34;</span>, <span style="color:#e6db74">&#34;tls&#34;</span>, <span style="color:#e6db74">&#34;quic&#34;</span>]
 </span></span><span style="display:flex;"><span>      }
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>  ],
@@ -115,6 +127,8 @@ Create a config file at <code style="background-color: #808080;">/usr/local/etc/
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>  ]
 </span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Test that config is correct:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>xray run -test -config /usr/local/etc/xray/config.json
 </span></span></code></pre></div><p>Start the service: <code style="background-color: #808080;">sudo systemctl start xray</code><br>
 Enable it to start on boot: <code style="background-color: #808080;">sudo systemctl enable xray</code><br>
 Check the status: <code style="background-color: #808080;">sudo systemctl status xray</code><br>
@@ -122,35 +136,37 @@ Or check logs: <code style="background-color: #808080;">journalctl -u xray</code
 <p>Don&rsquo;t forget to setup port forwarding on your router for the specified port (e.g. 4443).<br>
 Ensure your firewall allows traffic on a selected port using <code style="background-color: #808080;">ufw</code> (allow 4443).</p>
 <h2 id="clients">Clients</h2>
-<h3 id="mac-os">Mac OS</h3>
-<p>Install xray client:
-<code style="background-color: #808080;">brew install xray</code><br>
-Create a config file:</p>
+<h3 id="mobile--mac-os">Mobile / Mac OS</h3>
+<p>Install <a href="https://v2boxapp.org/">V2BOX</a> from the store.</p>
+<p>The simplest way to configure would be just to construct a link and paste into the app:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>vless://&lt;UUID&gt;@&lt;SERVER_IPV4&gt;:&lt;PORT&gt;?type<span style="color:#f92672">=</span>tcp&amp;encryption<span style="color:#f92672">=</span>none&amp;security<span style="color:#f92672">=</span>reality&amp;flow<span style="color:#f92672">=</span>xtls-rprx-vision&amp;sni<span style="color:#f92672">=</span>www.cloudflare.com&amp;fp<span style="color:#f92672">=</span>chrome&amp;pbk<span style="color:#f92672">=</span>&lt;PUBLIC_KEY/PASSWORD&gt;&amp;sid<span style="color:#f92672">=</span>&lt;SHORT_ID&gt;#&lt;CONNECTION_NAME&gt;  
+</span></span></code></pre></div><h3 id="linux-ubuntu">Linux (Ubuntu)</h3>
+<p>Install the same xray executable the same way you did for the server:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>bash -c <span style="color:#e6db74">&#34;</span><span style="color:#66d9ef">$(</span>curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span>
+</span></span></code></pre></div><p>Add generated ids and keys to the <code>/usr/local/etc/xray/config.json</code>:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;log&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;loglevel&#34;</span>: <span style="color:#e6db74">&#34;debug&#34;</span>
-</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;log&#34;</span>: { <span style="color:#f92672">&#34;loglevel&#34;</span>: <span style="color:#e6db74">&#34;warning&#34;</span> },
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;inbounds&#34;</span>: [
 </span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">1080</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;listen&#34;</span>: <span style="color:#e6db74">&#34;127.0.0.1&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">1081</span>,
 </span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;socks&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;settings&#34;</span>: {
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;auth&#34;</span>: <span style="color:#e6db74">&#34;noauth&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;udp&#34;</span>: <span style="color:#66d9ef">true</span>
-</span></span><span style="display:flex;"><span>      }
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;settings&#34;</span>: { <span style="color:#f92672">&#34;udp&#34;</span>: <span style="color:#66d9ef">true</span> }
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;outbounds&#34;</span>: [
 </span></span><span style="display:flex;"><span>    {
 </span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;vless&#34;</span>,
 </span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;settings&#34;</span>: {
 </span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;vnext&#34;</span>: [
 </span></span><span style="display:flex;"><span>          {
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;address&#34;</span>: <span style="color:#e6db74">&#34;&lt;ROUTER_IPV4_ADDRESS&gt;&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;address&#34;</span>: <span style="color:#e6db74">&#34;&lt;SERVER_IPV4&gt;&#34;</span>,
 </span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">4443</span>,
 </span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;users&#34;</span>: [
 </span></span><span style="display:flex;"><span>              {
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;&lt;GENERATED_ID&gt;&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;&lt;UUID&gt;&#34;</span>,
 </span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;encryption&#34;</span>: <span style="color:#e6db74">&#34;none&#34;</span>,
 </span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;flow&#34;</span>: <span style="color:#e6db74">&#34;xtls-rprx-vision&#34;</span>
 </span></span><span style="display:flex;"><span>              }
@@ -160,115 +176,14 @@ Create a config file:</p>
 </span></span><span style="display:flex;"><span>      },
 </span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;streamSettings&#34;</span>: {
 </span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;network&#34;</span>: <span style="color:#e6db74">&#34;tcp&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;security&#34;</span>: <span style="color:#e6db74">&#34;tls&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;tlsSettings&#34;</span>: {
-</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;serverName&#34;</span>: <span style="color:#960050;background-color:#1e0010">server_name</span>,
-</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;allowInsecure&#34;</span>: <span style="color:#66d9ef">true</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>      }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>  ]
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><p>Here, <code style="background-color: #808080;">serverName</code> is the <code style="background-color: #808080;">CN</code> that you&rsquo;ve used during certs generation.</p>
-<p>Run the client:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>xray -config /usr/local/etc/xray/config.json
-</span></span></code></pre></div><p>Allow proxy in the network settings: go to wifi details &ndash;&gt; set SOCKS as 127.0.0.1 and port 1080 &ndash;&gt; toggle allow. Don&rsquo;t forget to disable it back, when you stop xray client.</p>
-<h3 id="mobile">Mobile</h3>
-<p>Install <a href="https://en.v2rayng.org/">v2rayNG</a> from the store.<br>
-The simplest way to configure would be just to construct a link and paste into the app:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>vless://&lt;generated_id&gt;@&lt;router_public_dns&gt;:&lt;port&gt;?security<span style="color:#f92672">=</span>tls&amp;flow<span style="color:#f92672">=</span>xtls-rprx-vision&amp;sni<span style="color:#f92672">=</span>&lt;router_piblic_dns&gt;&amp;allowInsecure<span style="color:#f92672">=</span>1#&lt;connection_name&gt;
-</span></span></code></pre></div><p>Where all the args could be taken from the previously created configs. The last one - just a connection name, use any name you want.</p>
-<h3 id="linux-ubuntu">Linux (Ubuntu)</h3>
-<p>Install the same xray executable as for the server:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>bash -c <span style="color:#e6db74">&#34;</span><span style="color:#66d9ef">$(</span>curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span>
-</span></span></code></pre></div><p>And as well as with the previous clients - add generated uuid and server public IP to the <code>/usr/local/etc/xray/config.json</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;log&#34;</span>: {
-</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;loglevel&#34;</span>: <span style="color:#e6db74">&#34;info&#34;</span>
-</span></span><span style="display:flex;"><span>  },
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;inbounds&#34;</span>: [
-</span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;tag&#34;</span>: <span style="color:#e6db74">&#34;socks-in&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;listen&#34;</span>: <span style="color:#e6db74">&#34;127.0.0.1&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">1080</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;socks&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;settings&#34;</span>: {
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;udp&#34;</span>: <span style="color:#66d9ef">true</span>
-</span></span><span style="display:flex;"><span>      }
-</span></span><span style="display:flex;"><span>    },
-</span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;tag&#34;</span>: <span style="color:#e6db74">&#34;http-in&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;listen&#34;</span>: <span style="color:#e6db74">&#34;127.0.0.1&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">1081</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;http&#34;</span>
-</span></span><span style="display:flex;"><span>    },
-</span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;tag&#34;</span>: <span style="color:#e6db74">&#34;all-in&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;listen&#34;</span>: <span style="color:#e6db74">&#34;0.0.0.0&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">12345</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;dokodemo-door&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;settings&#34;</span>: {
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;network&#34;</span>: <span style="color:#e6db74">&#34;tcp,udp&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;followRedirect&#34;</span>: <span style="color:#66d9ef">true</span>
-</span></span><span style="display:flex;"><span>      },
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;sniffing&#34;</span>: {
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;enabled&#34;</span>: <span style="color:#66d9ef">true</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;destOverride&#34;</span>: [
-</span></span><span style="display:flex;"><span>          <span style="color:#e6db74">&#34;http&#34;</span>,
-</span></span><span style="display:flex;"><span>          <span style="color:#e6db74">&#34;tls&#34;</span>
-</span></span><span style="display:flex;"><span>        ]
-</span></span><span style="display:flex;"><span>      },
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;streamSettings&#34;</span>: {
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;sockopt&#34;</span>: {
-</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;tproxy&#34;</span>: <span style="color:#e6db74">&#34;tproxy&#34;</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>      }
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>  ],
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;outbounds&#34;</span>: [
-</span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;tag&#34;</span>: <span style="color:#e6db74">&#34;to-server&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;vless&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;settings&#34;</span>: {
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;vnext&#34;</span>: [
-</span></span><span style="display:flex;"><span>          {
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;address&#34;</span>: <span style="color:#e6db74">&#34;&lt;ROUTER_IPV4_ADDRESS&gt;&#34;</span>,
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">4443</span>,
-</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;users&#34;</span>: [
-</span></span><span style="display:flex;"><span>              {
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;&lt;GENERATED_ID&gt;&#34;</span>,
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;encryption&#34;</span>: <span style="color:#e6db74">&#34;none&#34;</span>,
-</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;flow&#34;</span>: <span style="color:#e6db74">&#34;xtls-rprx-vision&#34;</span>
-</span></span><span style="display:flex;"><span>              }
-</span></span><span style="display:flex;"><span>            ]
-</span></span><span style="display:flex;"><span>          }
-</span></span><span style="display:flex;"><span>        ]
-</span></span><span style="display:flex;"><span>      },
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;streamSettings&#34;</span>: {
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;security&#34;</span>: <span style="color:#e6db74">&#34;tls&#34;</span>,
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;tlsSettings&#34;</span>: {
-</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;serverName&#34;</span>: <span style="color:#e6db74">&#34;&lt;ROUTER_IPV4_ADDRESS&gt;&#34;</span>,
-</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;alpn&#34;</span>: [
-</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;h2&#34;</span>,
-</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;http/1.1&#34;</span>
-</span></span><span style="display:flex;"><span>          ],
-</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;allowInsecure&#34;</span>: <span style="color:#66d9ef">true</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;security&#34;</span>: <span style="color:#e6db74">&#34;reality&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;realitySettings&#34;</span>: {
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;serverName&#34;</span>: <span style="color:#e6db74">&#34;www.cloudflare.com&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;publicKey&#34;</span>: <span style="color:#e6db74">&#34;&lt;REALITY_PUBLIC_KEY/PASSWORD&gt;&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;shortId&#34;</span>: <span style="color:#e6db74">&#34;&lt;SHORT_ID&gt;&#34;</span>,
 </span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;fingerprint&#34;</span>: <span style="color:#e6db74">&#34;chrome&#34;</span>
 </span></span><span style="display:flex;"><span>        }
 </span></span><span style="display:flex;"><span>      }
-</span></span><span style="display:flex;"><span>    },
-</span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;tag&#34;</span>: <span style="color:#e6db74">&#34;direct&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;freedom&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;streamSettings&#34;</span>: {
-</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;sockopt&#34;</span>: {
-</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&#34;mark&#34;</span>: <span style="color:#ae81ff">2</span>
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>      }
-</span></span><span style="display:flex;"><span>    },
-</span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;tag&#34;</span>: <span style="color:#e6db74">&#34;block&#34;</span>,
-</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;blackhole&#34;</span>
 </span></span><span style="display:flex;"><span>    }
 </span></span><span style="display:flex;"><span>  ]
 </span></span><span style="display:flex;"><span>}
@@ -279,8 +194,8 @@ The simplest way to configure would be just to construct a link and paste into t
 </span></span><span style="display:flex;"><span>sudo systemctl status xray
 </span></span></code></pre></div><p>If everything is green — great, it means our proxy has started up at <code>http://127.0.0.1:1081</code>. Next, go check the IP using any public service:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>HTTP_PROXY<span style="color:#f92672">=</span>http://127.0.0.1:1081 HTTPS_PROXY<span style="color:#f92672">=</span>http://127.0.0.1:1081 curl -s https://api.ipify.org
-</span></span></code></pre></div><p>The IPv4 address should match the one specified in the client config.<br>
-In the example above you can see that it’s enough to use the default environment variables when starting any process — and most likely they’ll be interpreted correctly by the apps you use. The most common ones are HTTP/S_PROXY and http/s_proxy.</p>
+</span></span></code></pre></div><p>The IPv4 address should match the server ip.<br>
+In the example above you can see that it’s enough to use the default environment variables when running any process — and most likely they’ll be interpreted correctly by the apps you use. The most common ones are HTTP/S_PROXY and http/s_proxy.</p>
 <hr>
 <p>Enjoy!</p>
 

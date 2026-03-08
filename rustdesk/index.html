@@ -4,8 +4,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
    <meta name="description" content="Introduction
-AnyDesk is one of the most popular remote desktop tools, used worldwide—including in some security-sensitive industries. The issue is that closed-source software is hard to audit, and it’s especially risky if the vendor operates in jurisdictions with broad government access powers, like the EU.
-More specifically, AnyDesk is a German company and (at least for its public infrastructure) relies on third-party OVHcloud hosting (French, based in the EU). I think that in 2025, it’s hard to argue how big of a concern that is ;)">  
+AnyDesk is one of the most popular remote desktop tools, used worldwide, including in some security-sensitive industries. The issue is that closed-source software is hard to audit, and it’s especially risky if the vendor operates in jurisdictions with broad government access powers (AnyDesk is a German company and (at least for its public infrastructure) relies on third-party OVHcloud hosting (French, based in the EU), which is a huge concern).">  
 
   <title>
     
@@ -42,8 +41,7 @@ More specifically, AnyDesk is a German company and (at least for its public infr
     
 
     <h2 id="introduction">Introduction</h2>
-<p><code>AnyDesk</code> is one of the most popular remote desktop tools, used worldwide—including in some security-sensitive industries. The issue is that closed-source software is hard to audit, and it’s especially risky if the vendor operates in jurisdictions with broad government access powers, like the EU.</p>
-<p>More specifically, AnyDesk is a German company and (at least for its public infrastructure) relies on third-party OVHcloud hosting (French, based in the EU). I think that in 2025, it’s hard to argue how big of a concern that is ;)</p>
+<p><code>AnyDesk</code> is one of the most popular remote desktop tools, used worldwide, <em>including</em> in some security-sensitive industries. The issue is that closed-source software is hard to audit, and it’s especially risky if the vendor operates in jurisdictions with broad government access powers (AnyDesk is a German company and (at least for its public infrastructure) relies on third-party OVHcloud hosting (French, based in the EU), which is a huge concern).</p>
 <p>At a high level, this kind of software uses centralized “rendezvous” (sometimes called “broker” or “signaling”) servers to match clients and help them establish a peer-to-peer (P2P) connection. If a direct P2P connection can’t be established—due to NAT, complex network topologies, or restrictive firewalls—the connection typically falls back to a relay server that forwards traffic between the endpoints.</p>
 <p>Even if the vendor states that traffic is end-to-end encrypted, you still have to trust the vendor’s binaries and update mechanism. A malicious or compromised update could weaken or disable encryption, or misuse/replace certificates and keys. With closed-source clients and servers, it’s difficult to independently verify what is happening on the wire over time.</p>
 <p>For example, there were several quite severe flaws recently:</p>
@@ -57,9 +55,12 @@ More specifically, AnyDesk is a German company and (at least for its public infr
 <p><em>Of course</em>, open source doesn’t guarantee that there are no backdoors, etc.; the key difference is that you control the deployment and can keep it <em>entirely private</em>.</p>
 <h2 id="installation">Installation</h2>
 <h3 id="server-you-can-peek-here">Server (you can peek <a href="https://github.com/techahold/rustdeskinstall/blob/master/install.sh">here</a>)</h3>
-<p>The easiest way is to go to the releases of the main GitHub repository:<br>
+<p>The easiest way is to go to the releases of the main GitHub repository and download the latest zip with prebuilt binaries:<br>
 <a href="https://github.com/rustdesk/rustdesk-server/releases">https://github.com/rustdesk/rustdesk-server/releases</a></p>
-<p>Find the ZIP archive with the prebuilt binaries and unpack it to <code>/opt/rustdesk</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>wget https://github.com/rustdesk/rustdesk-server/releases/download/1.1.15/rustdesk-server-linux-amd64.zip
+</span></span></code></pre></div><p>Unpack it to <code>/opt/rustdesk</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>unzip -j rustdesk-server-linux-amd64.zip -d /opt/rustdesk
+</span></span></code></pre></div><p>Check:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>chmod +x /opt/rustdesk/hbbs
 </span></span><span style="display:flex;"><span>chmod +x /opt/rustdesk/hbbr
 </span></span></code></pre></div><p>Next, define two linux services, <code>/etc/systemd/system/rustdesk-hbbr.service</code>:</p>
@@ -101,8 +102,7 @@ More specifically, AnyDesk is a German company and (at least for its public infr
 </span></span></code></pre></div><p>Wait until it starts:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo systemctl status rustdesk-hbbs.service
 </span></span></code></pre></div><p>Then run the relay part:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo systemctl daemon-reload
-</span></span><span style="display:flex;"><span>sudo systemctl enable rustdesk-hbbr.service
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo systemctl enable rustdesk-hbbr.service
 </span></span><span style="display:flex;"><span>sudo systemctl start rustdesk-hbbr.service
 </span></span></code></pre></div><p>Once it has started, a pair of <code>ed25519</code> keys will appear in <code>/opt/rustdesk</code>. The clients will need the public key.<br>
 Don’t forget to forward these ports externally and whitelist them:</p>
