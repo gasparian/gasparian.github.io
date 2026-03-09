@@ -44,6 +44,13 @@
       <description>&lt;h1 id=&#34;intro&#34;&gt;Intro&lt;/h1&gt;&#xA;&lt;p&gt;VPNs were originally built to securely extend private networks across untrusted infrastructure, letting remote users or separate local networks communicate as if they were on the same internal network.&lt;br&gt;&#xA;Today, the same tunneling model is also commonly used as a privacy layer for routing personal internet traffic more discreetly.&lt;br&gt;&#xA;Comparing to the regular proxy, which just relays application traffic, a VPN is meant to securely extend a network boundary.&lt;br&gt;&#xA;That matters because the original motivation behind VPNs was not “hide my IP,” but: “Make a remote device behave like it is securely attached to a private network.”&lt;br&gt;&#xA;In this post, I&amp;rsquo;ll explain one of the simplest ways to set up a modern anti-sniffing VPN solution for personal use, without a VPC.&lt;/p&gt;</description>
     </item>
     <item>
+      <title>Classic office VPN Setup (OpenVPN)</title>
+      <link>https://gasparian.github.io/openvpn/</link>
+      <pubDate>Wed, 09 Aug 2023 18:13:51 +0100</pubDate>
+      <guid>https://gasparian.github.io/openvpn/</guid>
+      <description>&lt;h2 id=&#34;intro&#34;&gt;Intro&lt;/h2&gt;&#xA;&lt;p&gt;VPN was originally created to extend a private corporate LAN across a public network, allowing remote users to reach internal resources without exposing them directly to the internet. Rather than making file shares, intranet services, databases, or administrative interfaces publicly reachable, the VPN terminates an authenticated, encrypted tunnel at the network edge and then forwards authorized traffic into the internal office subnet.&lt;br&gt;&#xA;OpenVPN became one of the first SSL/TLS-based generation of VPNs (~2002), comparing to older PPTP/IPsec lineage.&lt;br&gt;&#xA;Here a simple illustration:&lt;/p&gt;</description>
+    </item>
+    <item>
       <title>cProfile</title>
       <link>https://gasparian.github.io/python-profiling/</link>
       <pubDate>Wed, 03 May 2023 00:00:00 +0000</pubDate>
