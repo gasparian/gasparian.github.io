@@ -218,9 +218,10 @@ It does not rely on Xray-core or V2Ray; instead, it has its own server and clien
 Its main focus is transport performance and resilience, particularly on high-latency or packet-loss-heavy connections.</p>
 <p>So, let&rsquo;s configure the Hysteria2 server and client.</p>
 <h2 id="server-ubuntu-1">Server (Ubuntu)</h2>
-<p>Install server script (make hysteria run from root - it makes things easier):</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>HYSTERIA_USER<span style="color:#f92672">=</span>root bash &lt;<span style="color:#f92672">(</span>curl -fsSL https://get.hy2.sh/<span style="color:#f92672">)</span>
-</span></span></code></pre></div><p>In case you DON&rsquo;T have a registered domain with certs - generate self-signed ones (otherwise - go direcly to the server config file):</p>
+<p>Install server script:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>bash &lt;<span style="color:#f92672">(</span>curl -fsSL https://get.hy2.sh/<span style="color:#f92672">)</span>
+</span></span></code></pre></div><p>It will also create <code>hysteria</code> group and user.<br>
+In case you <strong>DON&rsquo;T</strong> have a registered domain - generate self-signed ones (otherwise - go direcly to the server config file):</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo apt update
 </span></span><span style="display:flex;"><span>sudo apt install easy-rsa -y
 </span></span><span style="display:flex;"><span>
@@ -242,11 +243,22 @@ Its main focus is transport performance and resilience, particularly on high-lat
 </span></span><span style="display:flex;"><span>./easyrsa sign-req server server
 </span></span></code></pre></div><p>Copy cert and a key into the Hysteria folder:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo cp /home/gas/easy-rsa/pki/issued/server.crt /home/gas/easy-rsa/pki/private/server.key /etc/hysteria
-</span></span></code></pre></div><p>Check permissions:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo chown root:root /etc/hysteria/server.crt
-</span></span><span style="display:flex;"><span>sudo chmod <span style="color:#ae81ff">755</span> /etc/hysteria
-</span></span><span style="display:flex;"><span>sudo chmod <span style="color:#ae81ff">644</span> /etc/hysteria/server.crt
-</span></span><span style="display:flex;"><span>sudo chmod <span style="color:#ae81ff">600</span> /etc/hysteria/server.key
+</span></span></code></pre></div><p>Set permission to only allow <code>root</code> and <code>hysteria</code> users to interact with the keys:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span><span style="color:#75715e"># directory: accessible to root and hysteria group</span>
+</span></span><span style="display:flex;"><span>sudo chown root:hysteria /etc/hysteria
+</span></span><span style="display:flex;"><span>sudo chmod <span style="color:#ae81ff">750</span> /etc/hysteria
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># config: owned by root, readable by hysteria</span>
+</span></span><span style="display:flex;"><span>sudo chown root:hysteria /etc/hysteria/config.yaml
+</span></span><span style="display:flex;"><span>sudo chmod <span style="color:#ae81ff">640</span> /etc/hysteria/config.yaml
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># cert: readable by hysteria</span>
+</span></span><span style="display:flex;"><span>sudo chown root:hysteria /etc/hysteria/server.crt
+</span></span><span style="display:flex;"><span>sudo chmod <span style="color:#ae81ff">640</span> /etc/hysteria/server.crt
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># key: readable by hysteria, not world-readable</span>
+</span></span><span style="display:flex;"><span>sudo chown root:hysteria /etc/hysteria/server.key
+</span></span><span style="display:flex;"><span>sudo chmod <span style="color:#ae81ff">640</span> /etc/hysteria/server.key
 </span></span></code></pre></div><p>Use this generated cert to create pinSHA256 hash:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>openssl x509 -noout -fingerprint -sha256 -in /etc/hysteria/server.crt
 </span></span></code></pre></div><p>Save that hex-string, it would be needed for Client setup.</p>
