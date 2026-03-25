@@ -9,11 +9,11 @@ Today, the same tunneling model is also commonly used as a privacy layer for rou
 Comparing to the regular proxy, which just relays application traffic, a VPN is meant to securely extend a network boundary.
 That matters because the original motivation behind VPNs was not “hide my IP,” but: “Make a remote device behave like it is securely attached to a private network.”
 In this post, I&rsquo;ll explain one of the simplest ways to set up a modern anti-sniffing VPN solution for personal use.
-I&rsquo;ll be focusing on running the server part on a RaspberryPi, but this guide would stay the same in case of the VM on a VPC.">  
+I&rsquo;ll be focusing on running the server part on a RaspberryPi, but this guide would stay the same in case of the VM on a VPC of your choice.">  
 
   <title>
     
-      Set Up VLESS &amp;&amp; HYSTERIA2 (upd. 2026)
+      Private hardened VPN: VLESS/HYSTERIA2 &#43; PiHole Set Up (upd. 2026)
     
   </title>
 
@@ -41,7 +41,7 @@ I&rsquo;ll be focusing on running the server part on a RaspberryPi, but this gui
         </time>
     </p>
 
-    <h1>Set Up VLESS &amp;&amp; HYSTERIA2 (upd. 2026)</h1>
+    <h1>Private hardened VPN: VLESS/HYSTERIA2 &#43; PiHole Set Up (upd. 2026)</h1>
 
     
 
@@ -51,7 +51,7 @@ Today, the same tunneling model is also commonly used as a privacy layer for rou
 Comparing to the regular proxy, which just relays application traffic, a VPN is meant to securely extend a network boundary.<br>
 That matters because the original motivation behind VPNs was not “hide my IP,” but: “Make a remote device behave like it is securely attached to a private network.”<br>
 In this post, I&rsquo;ll explain one of the simplest ways to set up a modern anti-sniffing VPN solution for personal use.<br>
-I&rsquo;ll be focusing on running the server part on a RaspberryPi, but this guide would stay the same in case of the VM on a VPC.</p>
+I&rsquo;ll be focusing on running the server part on a RaspberryPi, but this guide would stay the same in case of the VM on a VPC of your choice.</p>
 <h1 id="hardware">Hardware</h1>
 <p><strong>Raspberry PI</strong> looks like a good option, since it&rsquo;s a powerful mini-computer with all needed interfaces for the fair price.<br>
 The best option is to order it from Chinese marketplaces such as AliExpress. I used the Raspberry Pi 4B with 8 GB of RAM as an example, but you can choose a simpler model without Ethernet or USB-A and with 2 GB of RAM — it should serve the needs of dozens of users just fine.<br>
@@ -321,6 +321,49 @@ In case you have a domain, it would be easy:</p>
 </code></pre><p>The most convinient option for the client app I found - <a href="https://hiddify.com/">Hiddify</a>. It&rsquo;s available on Play Store and App Store.<br>
 You just choose an option to paste the URI from the buffer and you&rsquo;re good to go.<br>
 <strong>Important note for Mac OS:</strong> get the app for <em>ipads</em> from the App Store. Hiddify desktop app build are unstable atm (on March. 2026).</p>
+<h1 id="pihole">PiHole</h1>
+<p>As a final touch - we can also install a <a href="https://docs.pi-hole.net/main/">PiHole</a> on VPN server machine, to also <strong>filter ads</strong>.<br>
+The general idea there is to set the local PiHole app as a DNS endpoint, which acts as a <a href="https://en.wikipedia.org/wiki/DNS_sinkhole">DNS sinkhole</a> for domains associated with ads, and bypasses the rest to the real public DNS.<br>
+Since all the VPN traffic anyway will go through that server, it automatically will be filtered by locally running PiHole.</p>
+<h2 id="installation">Installation</h2>
+<p>Following the official site, the easiest way to install is:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>curl -sSL https://install.pi-hole.net | sudo bash
+</span></span></code></pre></div><p>On some systems the only way to run it - with <code>sudo</code>.<br>
+The installation wizard should appear. It&rsquo;s safe to accept defaults there, and set Cloudfare as a DNS resolver. <br>
+In the end, you should save the admin password which will appear.</p>
+<p>Then, PiHole admin panel to appear, we need to allow 80 in firewall:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo ufw allow <span style="color:#ae81ff">80</span>
+</span></span></code></pre></div><p>It will be available at <code>http://&lt;PI_IPV4&gt;:80/admin</code>.</p>
+<p>And also add the current user to the pihole group to ease the cli auth:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo usermod -aG pihole $USER
+</span></span></code></pre></div><h2 id="local-dns-set-up">Local DNS Set Up</h2>
+<p>If your OS uses dhcpcd for network configuration, you can add to your <code>/etc/dhcpcd.conf</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>static domain_name_servers<span style="color:#f92672">=</span>127.0.0.1
+</span></span></code></pre></div><p>Otherwise - it requires a couple more steps to complete.<br>
+First, check the <code>resolv.conf</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>cat /etc/resolv.conf
+</span></span></code></pre></div><p>If it doesn&rsquo;t show the <code>nameserver 127.0.0.1</code>, we need to continue the setup.</p>
+<p>First, check the connect name in a network manager:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>nmcli connection show
+</span></span></code></pre></div><p>&ldquo;Wired connection 1&rdquo; at my case.</p>
+<p>Then, set the DNS endpoint to be localhost:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo nmcli connection modify <span style="color:#e6db74">&#34;Wired connection 1&#34;</span> ipv4.dns <span style="color:#e6db74">&#34;127.0.0.1&#34;</span>
+</span></span></code></pre></div><p>Disable automatic DNS from DHCP:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo nmcli connection modify <span style="color:#e6db74">&#34; ipv4.ignore-auto-dns yes
+</span></span></span></code></pre></div><p>Then, reset the box <em>or</em>, if you&rsquo;re running desktop, reload the connection:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo nmcli connection down <span style="color:#e6db74">&#34;Wired connection 1&#34;</span>
+</span></span><span style="display:flex;"><span>sudo nmcli connection up <span style="color:#e6db74">&#34;Wired connection 1&#34;</span>
+</span></span></code></pre></div><p>Recheck <code>cat /etc/resolv.conf</code>.</p>
+<p>Test it, by running:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>dig google.com
+</span></span></code></pre></div><p>You should see:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>SERVER: 127.0.0.1#53
+</span></span></code></pre></div><p>This means:
+OS &ndash;&gt; Pi-hole &ndash;&gt; upstream DNS</p>
+<p>Finally, we need to allow all network interfaces to use PiHole (so any VPN connection could go through there).<br>
+Go to PiHole admin panel &ndash;&gt; settings &ndash;&gt; allow the &ldquo;expert&rdquo; setting &ndash;&gt; DNS listening mode &ndash;&gt; allow &ldquo;ALL&rdquo;.</p>
+<p>It should be all setup correctly from now on!<br>
+Double check the actual ads blocking from your desktop, connected to the VPN, with smth like <a href="https://canyoublockit.com/">https://canyoublockit.com/</a>.</p>
 <hr>
 <p>Enjoy!</p>
 
