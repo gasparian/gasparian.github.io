@@ -360,6 +360,8 @@ First, check the <code>resolv.conf</code>:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>SERVER: 127.0.0.1#53
 </span></span></code></pre></div><p>This means:
 OS &ndash;&gt; Pi-hole &ndash;&gt; upstream DNS</p>
+<p>Now, I suggest to also turn off ratelimiter for PiHole at all, through the admin panel, by setting rate limit timeout and max value both to 0.<br>
+In case you running just house-hold-wide VPN server, it should be safe to drop ratelimiting, otherwise it could block the internet access enterily for some time.</p>
 <p>Finally, we need to allow all network interfaces to use PiHole (so any VPN connection could go through there).<br>
 Go to PiHole admin panel &ndash;&gt; settings &ndash;&gt; allow the &ldquo;expert&rdquo; setting &ndash;&gt; DNS listening mode &ndash;&gt; allow &ldquo;ALL&rdquo;.</p>
 <p>It should be all setup correctly from now on!<br>
