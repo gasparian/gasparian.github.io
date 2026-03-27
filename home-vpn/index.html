@@ -201,10 +201,12 @@ Ensure your firewall allows traffic on a selected port using <code style="backgr
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>sudo systemctl enable xray
 </span></span><span style="display:flex;"><span>sudo systemctl start xray
 </span></span><span style="display:flex;"><span>sudo systemctl status xray
-</span></span></code></pre></div><p>If everything is green — great, it means our proxy has started up at <code>http://127.0.0.1:1081</code>. Next, go check the IP using any public service:</p>
+</span></span></code></pre></div><p>If everything is green — great, it means our proxy has started up on <code>127.0.0.1:1081</code>. Next, go check the IP using any public service:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>curl --socks5-hostname 127.0.0.1:1081 -4 -s --max-time <span style="color:#ae81ff">5</span> https://api.ipify.org
+</span></span></code></pre></div><p>Or via http proxy env var:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-sh" data-lang="sh"><span style="display:flex;"><span>HTTP_PROXY<span style="color:#f92672">=</span>http://127.0.0.1:1081 HTTPS_PROXY<span style="color:#f92672">=</span>http://127.0.0.1:1081 curl -s https://api.ipify.org
 </span></span></code></pre></div><p>The IPv4 address should match the server ip.<br>
-In the example above you can see that it’s enough to use the default environment variables when running any process — and most likely they’ll be interpreted correctly by the apps you use. The most common ones are HTTP/S_PROXY and http/s_proxy.</p>
+In the example above, traffic is routed through Xray either by explicit SOCKS arguments (for example, &ndash;socks5-hostname) or by proxy environment variables. For SOCKS-based routing, use ALL_PROXY=socks5h://127.0.0.1:1081. For HTTP-aware clients, use HTTP_PROXY/HTTPS_PROXY (or lowercase http_proxy/https_proxy).</p>
 <h1 id="hysteria2">Hysteria2</h1>
 <p>Now, move to <a href="https://v2.hysteria.network/">Hysteria2</a>.<br>
 What is that about:</p>
